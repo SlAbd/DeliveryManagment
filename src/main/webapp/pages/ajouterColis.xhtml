@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+
+<h:head>
+    <meta charset="UTF-8"/>
+    <title>Ajouter un Colis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</h:head>
+
+<h:body class="min-h-screen flex items-center justify-center bg-gray-100">
+
+    <h:form styleClass="bg-white p-8 rounded shadow-md w-full max-w-md">
+
+        <h1 class="text-2xl font-bold mb-6 text-center">Ajouter un Colis</h1>
+
+        <h:panelGrid columns="2" cellpadding="5" styleClass="w-full">
+
+            <h:outputLabel value="Rue :" for="rue" styleClass="block text-gray-700 mb-2" />
+            <h:inputText id="rue" value="#{colisBean.rue}" styleClass="border rounded p-2 w-full mb-4" />
+
+            <h:outputLabel value="Ville :" for="ville" styleClass="block text-gray-700 mb-2" />
+            <h:inputText id="ville" value="#{colisBean.ville}" styleClass="border rounded p-2 w-full mb-4" />
+
+            <h:outputLabel value="Code Postal :" for="codePostal" styleClass="block text-gray-700 mb-2" />
+            <h:inputText id="codePostal" value="#{colisBean.codePostal}" styleClass="border rounded p-2 w-full mb-4" />
+
+            <h:outputLabel value="Pays :" for="pays" styleClass="block text-gray-700 mb-2" />
+            <h:inputText id="pays" value="#{colisBean.pays}" styleClass="border rounded p-2 w-full mb-4" />
+
+        </h:panelGrid>
+
+        <br/>
+
+        <h:commandButton
+                value="Ajouter Colis"
+                action="#{colisBean.ajouterColis()}"
+                styleClass="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+        />
+
+    </h:form>
+
+</h:body>
+</html>
