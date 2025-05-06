@@ -1,62 +1,37 @@
 package com.project.deliveryms.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "livreur")
 public class Livreur {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nom;
-    private String prenom;
-    private Double latitude; // Latitude du livreur
-    private Double longitude; // Longitude du livreur
 
-    public Long getId() {
-        return id;
-    }
+    private Double latitude;
+    private Double longitude;
+    private String disponibiliter;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public String getPrenom() {
-        return prenom;
-    }
-
-    public void setPrenom(String prenom) {
-        this.prenom = prenom;
-    }
-
-    public Double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-
-    public Double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
+    @OneToOne
+    @JoinColumn(name = "user_id") // clé étrangère dans livreur vers user
+    private User user;
 
     // Getters et setters
-}
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
+
+    public String getDisponibiliter() { return disponibiliter; }
+    public void setDisponibiliter(String disponibiliter) { this.disponibiliter = disponibiliter; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+}
