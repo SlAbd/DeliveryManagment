@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:head>
+    <title>Historique des Commandes</title>
+    <link href="Style.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <style>
+        .custom-card {
+            background-color: white;
+            border-radius: 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            margin-bottom: 2rem;
+            padding: 1rem;
+        }
+    </style>
+</h:head>
+
+<h:body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <ui:include src="sidebar.xhtml" />
+
+            <!-- Contenu principal -->
+            <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="pt-3 pb-2 mb-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h2 class="h4">Historique des Commandes</h2>
+                </div>
+                <!-- Message de bienvenue -->
+                <div class="alert alert-success mb-4" role="alert">
+                    Bienvenue dans votre historique, #{loginBean.utilisateur.prenom} !
+                </div>
+                <!-- Carte principale -->
+                <div class="custom-card">
+                    <div class="card-header bg-white border-bottom mb-2">
+                        <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Liste des historique</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Boutons d'export -->
+                        <div class="mb-3 d-flex justify-content-end">
+                            <h:form>
+                                <h:commandButton value="Exporter CSV" action="#{historiqueBean.exporterCSV}"
+                                                 styleClass="btn btn-outline-success me-2" style="width: 150px;">
+                                    <i class="bi bi-file-earmark-spreadsheet me-1"></i>
+                                </h:commandButton>
+                                <h:commandButton value="Exporter tous les reçus PDF" action="#{historiqueBean.exporterTousPDF}"
+                                                 styleClass="btn btn-outline-danger" style="width: 250px;">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i>
+                                </h:commandButton>
+                            </h:form>
+                        </div>
+
+                        <!-- Tableau des commandes -->
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead class="table">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Description</th>
+                                    <th>Reçu</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <!-- Données statiques (à remplacer par une boucle dynamique) -->
+                                <tr>
+                                    <td>1</td>
+                                    <td>2025-05-01</td>
+                                    <td>En route</td>
+                                    <td>Commande en préparation</td>
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-danger" href="recu/recu1.pdf" target="_blank">
+                                            <i class="bi bi-download me-1"></i>PDF
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>2025-05-02</td>
+                                    <td>Livrée</td>
+                                    <td>Commande livrée à l'adresse</td>
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-danger" href="recu/recu2.pdf" target="_blank">
+                                            <i class="bi bi-download me-1"></i>PDF
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>2025-05-03</td>
+                                    <td>Annulée</td>
+                                    <td>Commande annulée par le client</td>
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-danger" href="recu/recu3.pdf" target="_blank">
+                                            <i class="bi bi-download me-1"></i>PDF
+                                        </a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- /.col principal -->
+        </div> <!-- /.row -->
+    </div> <!-- /.container-fluid -->
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+</h:body>
+</html>
