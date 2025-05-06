@@ -10,8 +10,6 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIViewRoot;
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import com.project.deliveryms.services.UtilisateurService;
 
 @Named
@@ -132,27 +130,4 @@ public class ProfilBean implements Serializable {
 
     public String getConfirmPassword() { return confirmPassword; }
     public void setConfirmPassword(String confirmPassword) { this.confirmPassword = confirmPassword; }
-
-    // Méthodes pour récupérer les dates de création et de dernière connexion
-    public LocalDateTime getCreationDate() {
-        if (loginBean != null && loginBean.getUtilisateur() != null) {
-            return loginBean.getUtilisateur().getCreationDate();
-        }
-        return null;
-    }
-
-    public LocalDateTime getLastConnectionDate() {
-        if (loginBean != null && loginBean.getUtilisateur() != null) {
-            return loginBean.getUtilisateur().getLastConnectionDate();
-        }
-        return null;
-    }
-
-    // Méthode pour formater les dates
-    public String formatDate(LocalDateTime date) {
-        if (date == null) {
-            return "Non disponible";
-        }
-        return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
-    }
 }
