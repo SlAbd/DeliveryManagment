@@ -14,6 +14,10 @@ public class Colis {
 
     private String numeroSuivi;
 
+    @ManyToOne
+    @JoinColumn(name = "utilisateur_id") // ou le nom de votre colonne FK
+    private Utilisateur utilisateur;
+
 
     private String description;
     private double poids;
@@ -92,4 +96,10 @@ public class Colis {
     public void setPoids(double poids) {
         this.poids =poids;
 }
+
+    public void setUtilisateur(Utilisateur utilisateur) {
+    }
+
+    public void setDeleted(boolean b) {
+    }
 }

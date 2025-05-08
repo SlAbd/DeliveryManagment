@@ -35,7 +35,7 @@ public class LoginBean implements Serializable {
             if (utilisateur != null) {
                 Role role = utilisateur.getRole();
                 if (role == Role.ADMIN) {
-                    return "/admin/dashboard.xhtml?faces-redirect=true";
+                    return "/admin/admin-dashboard.xhtml?faces-redirect=true";
                 } else if (role == Role.LIVREUR) {
                     return "/livreur/dashboard.xhtml?faces-redirect=true";
                 } else {
