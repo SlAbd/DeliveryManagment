@@ -19,6 +19,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role; // Assurez-vous que vous avez une enum Role pour les rôles (e.g., LIVREUR, CLIENT, ADMIN, etc.)
 
+
     // Getters et Setters
 
     public Long getId() {

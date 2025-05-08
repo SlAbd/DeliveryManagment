@@ -50,7 +50,7 @@ public class ColisBean implements Serializable {
     @PostConstruct
     public void init() {
         nouveauColis = new Colis();
-        chargerListeColis();
+//        chargerListeColis();
         calculateTotalItems();
         resetFields();
     }
@@ -70,37 +70,37 @@ public class ColisBean implements Serializable {
         return dateTime != null ? dateTime.format(formatter) : "";
     }
 
-    // Méthode pour créer un colis
-    public String ajouterColis() {
-        // Créer une adresse à partir des informations du formulaire
-        Adresse adresse = adresseService.createAdresse(rue, ville, codePostal, pays);
-
-        // Utiliser le service pour créer le colis
-        Colis colis = colisService.createColis(description, poids, adresse);
-
-        // Recharger la liste après ajout
-        chargerListeColis();
-        calculateTotalItems();
-
-        // Rediriger ou effectuer d'autres actions après la création du colis
-        return "success?faces-redirect=true"; // Exemple de redirection après la création
-    }
+//    // Méthode pour créer un colis
+////    public String ajouterColis() {
+////        // Créer une adresse à partir des informations du formulaire
+////        Adresse adresse = adresseService.createAdresse(rue, ville, codePostal, pays);
+////
+////        // Utiliser le service pour créer le colis
+////        Colis colis = colisService.createColis(description, poids, adresse);
+////
+////        // Recharger la liste après ajout
+////        chargerListeColis();
+////        calculateTotalItems();
+//
+//        // Rediriger ou effectuer d'autres actions après la création du colis
+//        return "success?faces-redirect=true"; // Exemple de redirection après la création
+//    }
 
     // Méthode pour associer un colis à un utilisateur
-    public String associerColisAUtilisateur(Long colisId, Long utilisateurId) {
-        try {
-            // Associer le colis à un utilisateur
-            colisService.associerColisAUtilisateur(colisId, utilisateurId);
-            return "success?faces-redirect=true"; // Redirection après succès
-        } catch (IllegalArgumentException e) {
-            // Gérer l'erreur si le colis ou l'utilisateur n'est pas trouvé
-            return "error?faces-redirect=true"; // Exemple de redirection en cas d'erreur
-        }
-    }
+//    public String associerColisAUtilisateur(Long colisId, Long utilisateurId) {
+//        try {
+//            // Associer le colis à un utilisateur
+//            colisService.associerColisAUtilisateur(colisId, utilisateurId);
+//            return "success?faces-redirect=true"; // Redirection après succès
+//        } catch (IllegalArgumentException e) {
+//            // Gérer l'erreur si le colis ou l'utilisateur n'est pas trouvé
+//            return "error?faces-redirect=true"; // Exemple de redirection en cas d'erreur
+//        }
+//    }
 
-    public void chargerListeColis() {
-        this.listeColis = colisService.getAllColisWithDetails();
-    }
+//    public void chargerListeColis() {
+//        this.listeColis = colisService.getAllColisWithDetails();
+//    }
 
     private void calculateTotalItems() {
         this.totalItems = listeColis != null ? listeColis.size() : 0;
@@ -108,16 +108,16 @@ public class ColisBean implements Serializable {
 
     private Long colisId;
 
-    public void supprimerColis() {
-        try {
-            colisService.deleteColis(colisId); // Appel du service pour marquer le colis comme supprimé
-            // Afficher un message ou effectuer une redirection après la suppression
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Colis supprimé avec succès"));
-        } catch (EntityNotFoundException e) {
-            // Gérer l'exception si le colis n'a pas été trouvé
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Le colis n'a pas été trouvé"));
-        }
-    }
+//    public void supprimerColis() {
+//        try {
+//            colisService.deleteColis(colisId); // Appel du service pour marquer le colis comme supprimé
+//            // Afficher un message ou effectuer une redirection après la suppression
+//            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Colis supprimé avec succès"));
+//        } catch (EntityNotFoundException e) {
+//            // Gérer l'exception si le colis n'a pas été trouvé
+//            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Le colis n'a pas été trouvé"));
+//        }
+//    }
 
 
     // Méthodes de pagination améliorées
