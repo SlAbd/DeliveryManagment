@@ -52,8 +52,9 @@
         // Modal toggle
         const openModalBtn = document.getElementById('open-modal-btn');
         const closeModalBtn = document.getElementById('close-modal-btn');
+        const closeEditModalBtn = document.getElementById('cancel-edit-modal-btn')
         const cancelModalBtn = document.getElementById('cancel-modal-btn');
-        const modalOverlay = document.getElementById('modal-overlay');
+        const modalOverlay = document.getElementsByClassName('modal-overlay');
 
         if (openModalBtn &amp;&amp; modalOverlay) {
             openModalBtn.addEventListener('click', function() {
@@ -64,6 +65,13 @@
 
         if (closeModalBtn &amp;&amp; modalOverlay) {
             closeModalBtn.addEventListener('click', function() {
+                modalOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            });
+        }
+
+        if(closeEditModalBtn &amp;&amp; modalOverlay ){
+            closeEditModalBtn.addEventListener('click', function() {
                 modalOverlay.classList.remove('show');
                 document.body.style.overflow = '';
             });
