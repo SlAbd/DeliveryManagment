@@ -1,6 +1,7 @@
 package com.project.deliveryms.beans;
 
 import com.project.deliveryms.entities.Livreur;
+import com.project.deliveryms.entities.Utilisateur;
 import com.project.deliveryms.services.LivreurService;
 import jakarta.annotation.PostConstruct;
 import jakarta.faces.application.FacesMessage;
@@ -11,36 +12,38 @@ import jakarta.inject.Named;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Named
 @ViewScoped
 public class LivreurBean implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+    private static final Logger LOG = Logger.getLogger(LivreurBean.class.getName());
+
     @Inject
     private LivreurService livreurService;
 
     private Livreur nouveauLivreur;
+    private Livreur livreurModifie;
+
     private List<Livreur> livreurs;
 
     @PostConstruct
     public void init() {
-        // Initialisation d'un nouveau livreur pour les formulaires d'ajout
+        LOG.info("Initialisation du LivreurBean");
         nouveauLivreur = new Livreur();
-        // Charger la liste des livreurs
+        nouveauLivreur.setUser(new Utilisateur());
+
+        livreurModifie = new Livreur();
+        livreurModifie.setUser(new Utilisateur());
+
         rafraichirListeLivreurs();
     }
 
-    // Méthode pour rafraîchir la liste des livreurs
     private void rafraichirListeLivreurs() {
         livreurs = livreurService.getAllLivreurs();
-    }
-
-    public Livreur getNouveauLivreur() {
-        return nouveauLivreur;
-    }
-
-    public void setNouveauLivreur(Livreur nouveauLivreur) {
-        this.nouveauLivreur = nouveauLivreur;
+        LOG.info("Liste des livreurs rafraîchie : " + livreurs.size() + " livreurs trouvés");
     }
 
     public List<Livreur> getLivreurs() {
@@ -50,50 +53,166 @@ public class LivreurBean implements Serializable {
         return livreurs;
     }
 
-    public String ajouterLivreur() {
-        if (nouveauLivreur != null && nouveauLivreur.getUser() != null) {
-            livreurService.createLivreur(
-                    nouveauLivreur.getUser().getEmail(),
-                    nouveauLivreur.getUser().getNom(),
-                    nouveauLivreur.getUser().getPrenom(),
-                    nouveauLivreur.getLatitude(),
-                    nouveauLivreur.getLongitude(),
-                    nouveauLivreur.getDisponibiliter()
-            );
-            // Réinitialiser le formulaire après l'ajout
+    public Livreur getNouveauLivreur() {
+        if (nouveauLivreur == null) {
             nouveauLivreur = new Livreur();
-            // Rafraîchir la liste des livreurs
-            rafraichirListeLivreurs();
-            addMessage("Livreur ajouté avec succès.");
+            nouveauLivreur.setUser(new Utilisateur());
         }
-        return null; // Rester sur la même page
+        return nouveauLivreur;
     }
 
-    // Suppression d'un livreur
-    public void supprimerLivreur(Long id) {
-        livreurService.deleteLivreur(id);
-        // Rafraîchir la liste après suppression
-        rafraichirListeLivreurs();
-        addMessage("Livreur supprimé avec succès.");
+    public void setNouveauLivreur(Livreur nouveauLivreur) {
+        this.nouveauLivreur = nouveauLivreur;
     }
 
-    // Mise à jour d'un livreur
-    public String modifierLivreur(Livreur livreur) {
+    public Livreur getLivreurModifie() {
+        return livreurModifie;
+    }
+
+    public void setLivreurModifie(Livreur livreurModifie) {
+        this.livreurModifie = livreurModifie;
+    }
+
+    public String ajouterLivreur() {
         try {
-            livreurService.updateLivreur(livreur);
-            // Rafraîchir la liste après modification
-            rafraichirListeLivreurs();
-            addMessage("Livreur modifié avec succès");
+            if (nouveauLivreur != null && nouveauLivreur.getUser() != null) {
+                LOG.info("Tentative d'ajout d'un livreur: " + nouveauLivreur.getUser().getNom() + " " +
+                        nouveauLivreur.getUser().getPrenom());
+
+                livreurService.createLivreur(
+                        nouveauLivreur.getUser().getEmail(),
+                        nouveauLivreur.getUser().getNom(),
+                        nouveauLivreur.getUser().getPrenom(),
+                        nouveauLivreur.getLatitude(),
+                        nouveauLivreur.getLongitude(),
+                        nouveauLivreur.getDisponibiliter()
+                );
+
+                nouveauLivreur = new Livreur();
+                nouveauLivreur.setUser(new Utilisateur());
+
+                rafraichirListeLivreurs();
+                addMessage("Livreur ajouté avec succès.");
+                LOG.info("Livreur ajouté avec succès");
+            }
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
-                            "Erreur lors de la modification: " + e.getMessage(), null));
+            LOG.severe("Erreur lors de l'ajout du livreur: " + e.getMessage());
+            addErrorMessage("Erreur lors de l'ajout: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
+    }
+
+    public void supprimerLivreur(Long id) {
+        try {
+            LOG.info("Tentative de suppression du livreur avec ID: " + id);
+            livreurService.deleteLivreur(id);
+            rafraichirListeLivreurs();
+            addMessage("Livreur supprimé avec succès.");
+            LOG.info("Livreur supprimé avec succès");
+        } catch (Exception e) {
+            LOG.severe("Erreur lors de la suppression du livreur: " + e.getMessage());
+            addErrorMessage("Erreur lors de la suppression: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void addMessage(String message) {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO, message, null));
+    }
+
+    private void addErrorMessage(String message) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
+    }
+
+    // Méthode améliorée pour la préparation de la modification
+    public void preparerModification(Livreur livreur) {
+        try {
+            LOG.info("Préparation de la modification pour le livreur ID: " + livreur.getId());
+
+            // Récupérer l'entité complète depuis la base de données
+            Livreur livreurFromDB = livreurService.getLivreurById(livreur.getId());
+
+            if (livreurFromDB == null) {
+                LOG.warning("Livreur introuvable avec ID: " + livreur.getId());
+                addErrorMessage("Livreur introuvable (ID: " + livreur.getId() + ")");
+                return;
+            }
+
+            // Créer une nouvelle instance pour éviter les problèmes de détachement
+            livreurModifie = new Livreur();
+            livreurModifie.setId(livreurFromDB.getId());
+            livreurModifie.setDisponibiliter(livreurFromDB.getDisponibiliter());
+
+            // Copier les coordonnées si elles existent
+            if (livreurFromDB.getLatitude() != null) {
+                livreurModifie.setLatitude(livreurFromDB.getLatitude());
+            }
+            if (livreurFromDB.getLongitude() != null) {
+                livreurModifie.setLongitude(livreurFromDB.getLongitude());
+            }
+
+            // Copier les informations utilisateur
+            Utilisateur userClone = new Utilisateur();
+            if (livreurFromDB.getUser() != null) {
+                userClone.setId(livreurFromDB.getUser().getId());
+                userClone.setEmail(livreurFromDB.getUser().getEmail());
+                userClone.setNom(livreurFromDB.getUser().getNom());
+                userClone.setPrenom(livreurFromDB.getUser().getPrenom());
+                userClone.setRole(livreurFromDB.getUser().getRole());
+            }
+
+            livreurModifie.setUser(userClone);
+
+            // Logs pour vérification
+            LOG.info("--- Préparation Modification Livreur ---");
+            LOG.info("ID: " + livreurModifie.getId());
+            LOG.info("Nom: " + livreurModifie.getUser().getNom());
+            LOG.info("Prénom: " + livreurModifie.getUser().getPrenom());
+            LOG.info("Email: " + livreurModifie.getUser().getEmail());
+            LOG.info("Disponibilité: " + livreurModifie.getDisponibiliter());
+            LOG.info("-----------------------------------");
+
+            // Force le bean à être synchronisé avec la vue
+            FacesContext.getCurrentInstance().getPartialViewContext().getRenderIds().add("formModification");
+
+        } catch (Exception e) {
+            LOG.severe("Erreur lors de la préparation de la modification: " + e.getMessage());
+            addErrorMessage("Erreur lors de la préparation de la modification: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Méthode améliorée pour la modification du livreur
+    public String modifierLivreur() {
+        try {
+            if (livreurModifie == null || livreurModifie.getId() == null) {
+                LOG.warning("Tentative de modification sans livreur sélectionné");
+                addErrorMessage("Aucun livreur sélectionné pour modification");
+                return null;
+            }
+
+            LOG.info("--- Modification Livreur ---");
+            LOG.info("ID: " + livreurModifie.getId());
+            LOG.info("Nom: " + livreurModifie.getUser().getNom());
+            LOG.info("Prénom: " + livreurModifie.getUser().getPrenom());
+            LOG.info("Email: " + livreurModifie.getUser().getEmail());
+            LOG.info("Disponibilité: " + livreurModifie.getDisponibiliter());
+            LOG.info("----------------------------");
+
+            livreurService.updateLivreur(livreurModifie);
+            rafraichirListeLivreurs();
+            addMessage("Livreur modifié avec succès.");
+            LOG.info("Livreur modifié avec succès");
+
+            return null;
+        } catch (Exception e) {
+            LOG.severe("Erreur lors de la modification: " + e.getMessage());
+            addErrorMessage("Erreur lors de la modification: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 }

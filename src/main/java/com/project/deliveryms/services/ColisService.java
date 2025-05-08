@@ -17,10 +17,8 @@ import java.util.List;
 @Stateless
 @Transactional
 public class ColisService {
-
     @PersistenceContext(unitName = "default")
     private EntityManager entityManager;
-
     @Inject
     private AdresseService adresseService;
 
@@ -32,7 +30,6 @@ public class ColisService {
         entityManager.persist(colis);
         return colis;
     }
-
     public Colis updateStatut(Long colisId, StatusColis statut) {
         Colis colis = entityManager.find(Colis.class, colisId);
         if (colis != null) {
@@ -41,7 +38,6 @@ public class ColisService {
         }
         return colis;
     }
-
     public Colis getColisByNumeroSuivi(String numeroSuivi) {
         return entityManager.createQuery(
                         "SELECT c FROM Colis c WHERE c.numeroSuivi = :numeroSuivi", Colis.class)

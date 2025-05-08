@@ -1,6 +1,7 @@
 package com.project.deliveryms.repositories;
 
 import com.project.deliveryms.entities.User;
+import com.project.deliveryms.entities.Utilisateur;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -13,18 +14,18 @@ public class UserRepository {
     @PersistenceContext(unitName = "default")
     private EntityManager entityManager;
 
-    public void save(User user) {
+    public void save(Utilisateur user) {
         entityManager.persist(user);
     }
 
-    public Optional<User> findById(Long id) {
-        User user = entityManager.find(User.class, id);
+    public Optional<Utilisateur> findById(Long id) {
+        Utilisateur user = entityManager.find(Utilisateur.class, id);
         return Optional.ofNullable(user);
     }
 
-    public Optional<User> findByEmail(String email) {
-        List<User> results = entityManager.createQuery(
-                        "SELECT u FROM User u WHERE u.email = :email", User.class)
+    public Optional<Utilisateur> findByEmail(String email) {
+        List<Utilisateur> results = entityManager.createQuery(
+                        "SELECT u FROM User u WHERE u.email = :email", Utilisateur.class)
                 .setParameter("email", email)
                 .getResultList();
 
@@ -35,16 +36,16 @@ public class UserRepository {
         }
     }
 
-    public List<User> findAll() {
-        return entityManager.createQuery("SELECT u FROM User u", User.class)
+    public List<Utilisateur> findAll() {
+        return entityManager.createQuery("SELECT u FROM Utilisateur u", Utilisateur.class)
                 .getResultList();
     }
 
-    public void update(User user) {
+    public void update(Utilisateur user) {
         entityManager.merge(user);
     }
 
-    public void delete(User user) {
+    public void delete(Utilisateur user) {
         entityManager.remove(entityManager.contains(user) ? user : entityManager.merge(user));
     }
 }

@@ -1,16 +1,13 @@
+// 2. LivreurService.java - Updated updateLivreur method
+
 package com.project.deliveryms.services;
 
-import com.project.deliveryms.entities.Colis;
 import com.project.deliveryms.entities.Livreur;
-import com.project.deliveryms.entities.User;
+import com.project.deliveryms.entities.Utilisateur;
 import com.project.deliveryms.enums.Role;
-import com.project.deliveryms.enums.StatusColis;
-import com.project.deliveryms.repositories.ColisRepository;
 import com.project.deliveryms.repositories.LivreureRepository;
 import com.project.deliveryms.repositories.UserRepository;
 import jakarta.ejb.Stateless;
-import jakarta.ejb.TransactionAttribute;
-import jakarta.ejb.TransactionAttributeType;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -20,6 +17,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 @Stateless
 public class LivreurService {
@@ -43,26 +41,24 @@ public class LivreurService {
     /**
      * Crée un nouveau livreur avec un compte utilisateur associé
      */
-
     @Transactional
-    public Livreur createLivreur(String email, String prenom, String nom,
+    public Livreur createLivreur(String email, String nom, String prenom,
                                  Double latitude, Double longitude, String disponibilite) {
         try {
-            // 1. Générer un mot de passe aléatoire
             String generatedPassword = generateRandomPassword();
 
-            // 2. Envoyer l'email
+            // Envoyer le mot de passe au livreur
             String subject = "Votre compte Livreur - Mot de passe";
             String message = "Bonjour " + prenom + ",\n\n" +
                     "Votre compte livreur a été créé.\n" +
                     "Votre mot de passe est : " + generatedPassword;
             emailService.sendEmail(email, subject, message);
 
-            // 3. Hacher le mot de passe
+            // Hacher le mot de passe
             String hashedPassword = BCrypt.hashpw(generatedPassword, BCrypt.gensalt());
 
-            // 4. Créer et persister l'utilisateur
-            User user = new User();
+            // Créer l'utilisateur
+            Utilisateur user = new Utilisateur();
             user.setNom(nom);
             user.setPrenom(prenom);
             user.setEmail(email);
@@ -70,15 +66,14 @@ public class LivreurService {
             user.setRole(Role.LIVREUR);
 
             entityManager.persist(user);
-            entityManager.flush(); // Pour générer l'id du user
+            entityManager.flush(); // Génère l'ID
 
-            // 5. Créer et persister le livreur lié à l'utilisateur
+            // Créer le livreur
             Livreur livreur = new Livreur();
-
             livreur.setLatitude(latitude);
             livreur.setLongitude(longitude);
             livreur.setDisponibiliter(disponibilite);
-            livreur.setUser(user); // Association directe
+            livreur.setUser(user);
 
             entityManager.persist(livreur);
 
@@ -92,7 +87,65 @@ public class LivreurService {
     }
 
     /**
-     * Génère un mot de passe aléatoire sécurisé
+     * Met à jour un livreur et son utilisateur associé
+     * Méthode améliorée pour une mise à jour plus robuste
+     */
+    private static final Logger LOG = Logger.getLogger(LivreurService.class.getName());
+
+    @Transactional
+    public void updateLivreur(Livreur livreur) {
+        try {
+            // Vérification que le livreur et son ID sont valides
+            if (livreur == null || livreur.getId() == null) {
+                throw new RuntimeException("Données de livreur invalides");
+            }
+
+            // Appel au repository pour mettre à jour le livreur
+            livreurRepository.update(livreur);
+
+            // Pour forcer la mise à jour en base de données
+            // EntityManager.flush() force la persistance et valide la transaction
+            livreurRepository.getEntityManager().flush();
+
+            LOG.info("Livreur mis à jour avec succès - ID: " + livreur.getId());
+        } catch (Exception e) {
+            LOG.severe("Erreur lors de la mise à jour: " + e.getMessage());
+            throw new RuntimeException("Erreur lors de la mise à jour du livreur: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Supprime un livreur et son utilisateur associé
+     */
+    @Transactional
+    public void deleteLivreur(Long id) {
+        Livreur livreur = entityManager.find(Livreur.class, id);
+        if (livreur != null) {
+            Utilisateur user = livreur.getUser();
+            entityManager.remove(livreur);
+
+            if (user != null) {
+                entityManager.remove(entityManager.contains(user) ? user : entityManager.merge(user));
+            }
+        }
+    }
+
+    /**
+     * Récupère tous les livreurs
+     */
+    public List<Livreur> getAllLivreurs() {
+        return livreurRepository.findAll();
+    }
+
+    /**
+     * Récupère les livreurs non disponibles
+     */
+    public List<Livreur> getLivreursIndisponibles() {
+        return livreurRepository.findLivreursIndisponibles();
+    }
+
+    /**
+     * Génère un mot de passe aléatoire
      */
     private String generateRandomPassword() {
         int length = 10;
@@ -105,81 +158,35 @@ public class LivreurService {
         return sb.toString();
     }
 
+
     /**
-     * Récupérer tous les livreurs
+     * Récupère un livreur par son ID
+     * @param id L'identifiant du livreur
+     * @return Le livreur ou null s'il n'existe pas
      */
-    public List<Livreur> getAllLivreurs() {
-        return livreurRepository.findAll();
-    }
-
-
-    // Méthode pour mettre à jour un livreur
-    // Méthode pour mettre à jour un livreur
-
-
-
-
-    @Transactional
-    public void deleteLivreur(Long id) {
-        Livreur livreur = entityManager.find(Livreur.class, id);
-        if (livreur != null) {
-            User user = livreur.getUser();
-
-            // Supprimer d'abord le livreur
-            entityManager.remove(livreur);
-
-            // Ensuite, supprimer l'utilisateur s'il n'est pas utilisé ailleurs
-            if (user != null) {
-                entityManager.remove(entityManager.contains(user) ? user : entityManager.merge(user));
-            }
-        }
-    }
-
-    @Transactional
-    public void updateLivreur(Livreur livreur) {
+    public Livreur getLivreurById(Long id) {
         try {
-            // Récupérer le livreur existant depuis la base de données
-            Livreur existingLivreur = entityManager.find(Livreur.class, livreur.getId());
-            if (existingLivreur != null) {
-                // Mettre à jour les propriétés du livreur
-                existingLivreur.setDisponibiliter(livreur.getDisponibiliter());
-
-                // Si les coordonnées sont définies dans le livreur passé en paramètre
-                if (livreur.getLatitude() != null) {
-                    existingLivreur.setLatitude(livreur.getLatitude());
-                }
-                if (livreur.getLongitude() != null) {
-                    existingLivreur.setLongitude(livreur.getLongitude());
-                }
-
-                // Mettre à jour les détails de l'utilisateur
-                User existingUser = existingLivreur.getUser();
-                if (existingUser != null && livreur.getUser() != null) {
-                    existingUser.setNom(livreur.getUser().getNom());
-                    existingUser.setPrenom(livreur.getUser().getPrenom());
-                    existingUser.setEmail(livreur.getUser().getEmail());
-
-                    // Mettre à jour l'utilisateur
-                    entityManager.merge(existingUser);
-                }
-
-                // Mettre à jour le livreur
-                entityManager.merge(existingLivreur);
-                entityManager.flush(); // S'assurer que les modifications sont écrites en base
-            } else {
-                throw new RuntimeException("Livreur avec ID " + livreur.getId() + " non trouvé");
+            if (id == null) {
+                return null;
             }
+
+            System.out.println("Récupération du livreur avec ID: " + id);
+
+            // Utiliser l'entity manager pour récupérer le livreur
+            Livreur livreur = entityManager.find(Livreur.class, id);
+
+            // Forcer le chargement des associations pour éviter les erreurs LazyInitialization
+            if (livreur != null && livreur.getUser() != null) {
+                // Accéder aux propriétés pour forcer le chargement
+                livreur.getUser().getNom();
+                livreur.getUser().getEmail();
+            }
+
+            return livreur;
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la mise à jour du livreur: " + e.getMessage(), e);
+            System.err.println("Erreur lors de la récupération du livreur: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
-
-
-    // In LivreurService class
-    public List<Livreur> getLivreursIndisponibles() {
-        return livreurRepository.findLivreursIndisponibles(); // Use the method in the repository
-    }
-
-
 }
-

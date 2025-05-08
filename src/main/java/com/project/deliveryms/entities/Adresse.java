@@ -47,8 +47,7 @@ public class Adresse {
         return pays;
     }
     public void setPays(String pays) {
-        this.pays = pays;
-    }
-
+        this.pays =pays;
 }
 
+}

@@ -90,7 +90,6 @@ public class Colis {
     }
 
     public void setPoids(double poids) {
-        this.poids = poids;
-    }
+        this.poids =poids;
 }
-
+}

@@ -17,7 +17,7 @@ public class Livreur {
 
     @OneToOne
     @JoinColumn(name = "user_id") // clé étrangère dans livreur vers user
-    private User user;
+    private Utilisateur user;
 
     // Getters et setters
     public Long getId() { return id; }
@@ -32,6 +32,6 @@ public class Livreur {
     public String getDisponibiliter() { return disponibiliter; }
     public void setDisponibiliter(String disponibiliter) { this.disponibiliter = disponibiliter; }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public Utilisateur getUser() { return user; }
+    public void setUser(Utilisateur user) { this.user = user; }
 }

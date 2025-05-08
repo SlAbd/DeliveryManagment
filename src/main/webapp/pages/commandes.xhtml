@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:head>
+    <title>Dashboard Client</title>
+    <link href="Style.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" />
+    <style>
+        .custom-card {
+            background-color: white;
+            border-radius: 0px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            margin: 0 auto 2rem auto;
+            padding: 1rem;
+        }
+    </style>
+</h:head>
+
+<h:body class="bg-light">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <ui:include src="sidebar.xhtml" />
+
+            <!-- Contenu principal -->
+            <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- Titre -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Mes Commandes</h1>
+                </div>
+
+                <!-- Message de bienvenue -->
+                <div class="alert alert-success mb-4" role="alert">
+                    Bienvenue dans vos Commandes, #{loginBean.utilisateur.prenom} !
+                </div>
+
+                <!-- Filtres -->
+                <div class="custom-card">
+                    <div class="card-header bg-white border-bottom mb-3">
+                        <h5 class="mb-0"><i class="bi bi-funnel me-2"></i>Filtres</h5>
+                    </div>
+                    <div class="card-body">
+                        <h:form styleClass="row g-3">
+                            <div class="col-md-4">
+                                <label for="typeActivite" class="form-label">Type de status</label>
+                                <h:selectOneMenu id="typeActivite" value="#{historiqueBean.filtreTypeStatus}" styleClass="form-select">
+                                    <f:selectItem itemLabel="Toutes les statuses" itemValue="" />
+                                    <f:selectItem itemLabel="En route" itemValue="En route" />
+                                    <f:selectItem itemLabel="Livrée" itemValue="Livrée" />
+                                    <f:selectItem itemLabel="En attente" itemValue="En attente" />
+                                    <f:selectItem itemLabel="Annulée" itemValue="Annulée" />
+                                </h:selectOneMenu>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="dateDebut" class="form-label">Date début</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                                    <h:inputText id="dateDebut" type="date" value="#{historiqueBean.filtreDateDebut}" styleClass="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="dateFin" class="form-label">Date fin</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                                    <h:inputText id="dateFin" type="date" value="#{historiqueBean.filtreDateFin}" styleClass="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-12 text-end mt-3">
+                                <h:commandButton value="Réinitialiser" action="#{historiqueBean.reinitialiserFiltres}"
+                                                 styleClass="btn btn-outline-secondary btn-sm me-2"
+                                                 style="width: 100px;">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i>
+                                </h:commandButton>
+
+                                <h:commandButton value="Filtrer" action="#{historiqueBean.filtrer}"
+                                                 styleClass="btn btn-primary btn-sm"
+                                                 style="width: 100px;">
+                                    <i class="bi bi-search me-1"></i>
+                                </h:commandButton>
+                            </div>
+                        </h:form>
+                    </div>
+
+
+                <!-- Résultats
+                <div class="custom-card">-->
+
+                        <div class="card-header bg-white border-bottom mb-3">
+                            <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Resultats</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Tableau statique -->
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead class="table">
+                                    <tr>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Description</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <!-- Ligne 1 -->
+                                    <tr>
+                                        <td>1</td>
+                                        <td>2025-05-01</td>
+                                        <td>En route</td>
+                                        <td>Commande en préparation</td>
+                                    </tr>
+                                    <!-- Ligne 2 -->
+                                    <tr>
+                                        <td>2</td>
+                                        <td>2025-05-02</td>
+                                        <td>Livrée</td>
+                                        <td>Commande livrée à l'adresse</td>
+                                    </tr>
+                                    <!-- Ligne 3 -->
+                                    <tr>
+                                        <td>3</td>
+                                        <td>2025-05-03</td>
+                                        <td>Annulée</td>
+                                        <td>Commande annulée par le client</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+</h:body>
+</html>
