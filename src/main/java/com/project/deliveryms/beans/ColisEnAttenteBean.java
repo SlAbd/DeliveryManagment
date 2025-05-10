@@ -23,12 +23,12 @@ import java.util.stream.Collectors;
 
 @Named
 @ViewScoped
-public class ColisBean implements Serializable {
+public class ColisEnAttenteBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Colis nouveauColis;
     private Colis colisAModifier;
+    private Colis colisAAssigner;
 
     // Propriétés du formulaire
     private String rue;
@@ -37,17 +37,13 @@ public class ColisBean implements Serializable {
     private String pays;
     private String description;
     private double poids;
-    private StatusColis status;
     private List<Colis> listeColis;
     private List<Colis> listeColisFiltree;
     private String numeroSuivi;
-    private LocalDateTime dateEnvoi; // Ajout de la propriété dateEnvoi
+    private LocalDateTime dateEnvoi;
 
     // Variable pour la recherche
     private String searchQuery;
-
-    // Variable pour le filtrage par statut
-    private String filtreStatut = "TOUS";
 
     // Variables pour la pagination
     private int currentPage = 1;
@@ -62,8 +58,8 @@ public class ColisBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        nouveauColis = new Colis();
         colisAModifier = new Colis();
+        colisAAssigner = new Colis();
         chargerListeColis();
         listeColisFiltree = new ArrayList<>(listeColis);
         calculateTotalItems();
@@ -77,36 +73,14 @@ public class ColisBean implements Serializable {
         ville = "";
         codePostal = "";
         pays = "";
-        status = StatusColis.EN_ATTENTE;
         numeroSuivi = "";
-        dateEnvoi = null; // Réinitialiser la date d'envoi
+        dateEnvoi = null;
     }
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public String formatDate(LocalDateTime dateTime) {
         return dateTime != null ? dateTime.format(formatter) : "";
-    }
-
-    // Méthode pour créer un colis
-    public String ajouterColis() {
-        // Créer une adresse à partir des informations du formulaire
-        Adresse adresse = adresseService.createAdresse(rue, ville, codePostal, pays);
-
-        // Utiliser le service pour créer le colis
-        Colis colis = colisService.createColis(description, poids, adresse);
-
-        // Recharger la liste après ajout
-        chargerListeColis();
-        listeColisFiltree = new ArrayList<>(listeColis);
-        calculateTotalItems();
-        resetFields();
-
-        // Afficher un message de succès
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Le colis a été ajouté avec succès"));
-
-        return null;
     }
 
     /**
@@ -118,9 +92,8 @@ public class ColisBean implements Serializable {
             this.colisId = colis.getId();
             this.description = colis.getDescription();
             this.poids = colis.getPoids();
-            this.status = colis.getStatus();
             this.numeroSuivi = colis.getNumeroSuivi();
-            this.dateEnvoi = colis.getDateEnvoi(); // Charger la date d'envoi
+            this.dateEnvoi = colis.getDateEnvoi();
 
             // Chargement des informations d'adresse
             if (colis.getAdresseDestinataire() != null) {
@@ -134,11 +107,14 @@ public class ColisBean implements Serializable {
     }
 
     /**
-     * Méthode pour charger les informations d'un colis pour le formulaire de modification
-     * @param colis Le colis à modifier
+     * Méthode pour charger les informations d'un colis pour l'assignation
+     * @param colis Le colis à assigner
      */
-    public void chargerColisAModifierA(Colis colis) {
-        chargerColisAModifier(colis);
+    public void chargerColisAAssigner(Colis colis) {
+        if (colis != null) {
+            this.colisAAssigner = colis;
+            this.colisId = colis.getId();
+        }
     }
 
     /**
@@ -151,7 +127,7 @@ public class ColisBean implements Serializable {
                     colisId,
                     description,
                     poids,
-                    status,
+                    StatusColis.EN_ATTENTE,
                     rue,
                     ville,
                     codePostal,
@@ -160,7 +136,6 @@ public class ColisBean implements Serializable {
 
             // Recharger la liste après modification
             chargerListeColis();
-            appliquerFiltres();
             calculateTotalItems();
             resetFields();
 
@@ -173,27 +148,6 @@ public class ColisBean implements Serializable {
             // Gérer l'exception si le colis n'a pas été trouvé
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Le colis n'a pas été trouvé"));
-
-            return null;
-        }
-    }
-
-    /**
-     * Méthode pour générer un bordereau d'expédition
-     * @param colisId L'ID du colis pour lequel générer le bordereau
-     */
-    public String genererBordereau(Long colisId) {
-        try {
-            // Logique pour générer le bordereau d'expédition (PDF)
-            // Cette méthode devrait appeler un service qui génère le PDF
-
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Succès", "Le bordereau a été généré avec succès"));
-
-            return null;
-        } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Impossible de générer le bordereau"));
 
             return null;
         }
@@ -214,127 +168,20 @@ public class ColisBean implements Serializable {
                                             (c.getAdresseDestinataire().getPays() != null && c.getAdresseDestinataire().getPays().toLowerCase().contains(query)))))
                     .collect(Collectors.toList());
         } else {
-            // Si la recherche est vide, appliquer seulement le filtre de statut
-            filtrerParStatut(filtreStatut);
-            return;
-        }
-
-        // Appliquer également le filtre de statut si nécessaire
-        if (!"TOUS".equals(filtreStatut)) {
-            try {
-                StatusColis statusEnum = StatusColis.valueOf(filtreStatut);
-                listeColisFiltree = listeColisFiltree.stream()
-                        .filter(c -> c.getStatus() == statusEnum)
-                        .collect(Collectors.toList());
-            } catch (IllegalArgumentException e) {
-                // Ignorer si le statut n'est pas valide
-            }
+            // Si la recherche est vide, afficher tous les colis en attente
+            listeColisFiltree = new ArrayList<>(listeColis);
         }
 
         calculateTotalItems();
         currentPage = 1; // Revenir à la première page après une recherche
     }
 
-    /**
-     * Méthode pour filtrer les colis par statut
-     * @param statut Le statut à filtrer
-     */
-    public void filtrerParStatut(String statut) {
-        this.filtreStatut = statut;
-
-        if ("TOUS".equals(statut)) {
-            listeColisFiltree = new ArrayList<>(listeColis);
-        } else {
-            try {
-                StatusColis statusEnum = StatusColis.valueOf(statut);
-                listeColisFiltree = listeColis.stream()
-                        .filter(c -> c.getStatus() == statusEnum)
-                        .collect(Collectors.toList());
-            } catch (IllegalArgumentException e) {
-                // Si le statut n'est pas valide, afficher tous les colis
-                listeColisFiltree = new ArrayList<>(listeColis);
-            }
-        }
-
-        // Appliquer également la recherche si nécessaire
-        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-            rechercher();
-            return;
-        }
-
-        calculateTotalItems();
-        currentPage = 1; // Revenir à la première page après un filtrage
-    }
-
-    /**
-     * Méthode pour appliquer à la fois la recherche et le filtre de statut
-     */
-    private void appliquerFiltres() {
-        // D'abord appliquer le filtre de statut
-        filtrerParStatut(filtreStatut);
-
-        // Ensuite appliquer la recherche si nécessaire
-        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
-            rechercher();
-        }
-    }
-
-    /**
-     * Méthode pour obtenir le nombre de colis par statut
-     * @param statut Le statut pour lequel compter les colis
-     * @return Le nombre de colis ayant ce statut
-     */
-    public int getColisCountByStatus(String statut) {
-        try {
-            StatusColis statusEnum = StatusColis.valueOf(statut);
-            return (int) listeColis.stream()
-                    .filter(c -> c.getStatus() == statusEnum)
-                    .count();
-        } catch (IllegalArgumentException e) {
-            return 0;
-        }
-    }
-
-    /**
-     * Méthode pour obtenir le nombre total de colis
-     * @return Le nombre total de colis
-     */
-    public int getTotalColis() {
-        return listeColis.size();
-    }
-
-    /**
-     * Méthode pour vérifier si un colis a un statut spécifique
-     * @param statut Le statut à vérifier
-     * @return true si le colis a ce statut, false sinon
-     */
-    public boolean hasStatus(String statut) {
-        if (status == null) {
-            return false;
-        }
-
-        try {
-            StatusColis statusEnum = StatusColis.valueOf(statut);
-            return status.equals(statusEnum) || status.ordinal() > statusEnum.ordinal();
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Méthode pour obtenir la date d'un statut spécifique
-     * @param statut Le statut dont on veut la date
-     * @return La date formatée ou une chaîne vide
-     */
-    public String getStatusDate(String statut) {
-        if (hasStatus(statut)) {
-            return formatDate(LocalDateTime.now());
-        }
-        return "";
-    }
-
     public void chargerListeColis() {
-        this.listeColis = colisService.getAllColisWithDetails();
+        List<Colis> allColis = colisService.getAllColisWithDetails();
+        // Filtrer pour ne garder que les colis en attente
+        this.listeColis = allColis.stream()
+                .filter(c -> c.getStatus() == StatusColis.EN_ATTENTE)
+                .collect(Collectors.toList());
     }
 
     private void calculateTotalItems() {
@@ -347,7 +194,7 @@ public class ColisBean implements Serializable {
         try {
             colisService.deleteColis(colisId);
             chargerListeColis();
-            appliquerFiltres();
+            listeColisFiltree = new ArrayList<>(listeColis);
             calculateTotalItems();
 
             FacesContext.getCurrentInstance().addMessage(null,
@@ -404,19 +251,6 @@ public class ColisBean implements Serializable {
         return pages;
     }
 
-    public List<Colis> getCurrentPageItems() {
-        return getListeColis();
-    }
-
-    public int getItemsPerPage() {
-        return pageSize;
-    }
-
-    public void setItemsPerPage(int itemsPerPage) {
-        this.pageSize = itemsPerPage;
-        this.currentPage = 1;
-    }
-
     public List<Colis> getListeColis() {
         if (listeColisFiltree == null || listeColisFiltree.isEmpty()) {
             return new ArrayList<>();
@@ -452,26 +286,20 @@ public class ColisBean implements Serializable {
     }
 
     // Getters et setters
-    public void setListeColis(List<Colis> listeColis) {
-        this.listeColis = listeColis;
-        this.listeColisFiltree = new ArrayList<>(listeColis);
-        calculateTotalItems();
-    }
-
-    public Colis getNouveauColis() {
-        return nouveauColis;
-    }
-
-    public void setNouveauColis(Colis nouveauColis) {
-        this.nouveauColis = nouveauColis;
-    }
-
     public Colis getColisAModifier() {
         return colisAModifier;
     }
 
     public void setColisAModifier(Colis colisAModifier) {
         this.colisAModifier = colisAModifier;
+    }
+
+    public Colis getColisAAssigner() {
+        return colisAAssigner;
+    }
+
+    public void setColisAAssigner(Colis colisAAssigner) {
+        this.colisAAssigner = colisAAssigner;
     }
 
     public String getRue() {
@@ -522,14 +350,6 @@ public class ColisBean implements Serializable {
         this.poids = poids;
     }
 
-    public StatusColis getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusColis status) {
-        this.status = status;
-    }
-
     public String getNumeroSuivi() {
         return numeroSuivi;
     }
@@ -538,7 +358,6 @@ public class ColisBean implements Serializable {
         this.numeroSuivi = numeroSuivi;
     }
 
-    // Getter et setter pour dateEnvoi
     public LocalDateTime getDateEnvoi() {
         return dateEnvoi;
     }
@@ -553,14 +372,6 @@ public class ColisBean implements Serializable {
 
     public void setSearchQuery(String searchQuery) {
         this.searchQuery = searchQuery;
-    }
-
-    public String getFiltreStatut() {
-        return filtreStatut;
-    }
-
-    public void setFiltreStatut(String filtreStatut) {
-        this.filtreStatut = filtreStatut;
     }
 
     public int getCurrentPage() {

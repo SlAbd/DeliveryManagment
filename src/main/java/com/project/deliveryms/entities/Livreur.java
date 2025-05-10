@@ -59,4 +59,3 @@ public class Livreur {
 
     // Getters et setters
 }
-

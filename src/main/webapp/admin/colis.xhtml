@@ -1,0 +1,132 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                template="/WEB-INF/templates/template.xhtml">
+
+    <ui:define name="title">Gestion des Colis - Admin Dashboard</ui:define>
+
+    <ui:define name="page-title">Gestion des Colis</ui:define>
+
+    <ui:define name="content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Tous les colis</h1>
+            <button type="button" class="btn btn-primary" id="open-modal-btn">
+                <i class="ri-add-line"></i> Ajouter un colis
+            </button>
+        </div>
+
+        <!-- Section de filtrage par statut -->
+        <!--<ui:include src="/WEB-INF/components/status-filter.xhtml" /> -->
+
+        <!-- Colis List -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Liste des colis</h2>
+                <div class="flex items-center gap-2">
+                    <h:form id="searchForm">
+                        <div class="search-container">
+                            <h:inputText id="searchQuery" value="#{colisBean.searchQuery}" styleClass="form-control" style="width: 250px;" placeholder="Rechercher..." />
+                            <h:commandButton value="Rechercher" action="#{colisBean.rechercher}" styleClass="btn btn-outline btn-sm">
+                                <f:ajax execute="searchQuery" render=":dataTableForm :paginationForm :paginationInfoForm" />
+                            </h:commandButton>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-container">
+                    <!-- Tableau des colis -->
+                    <h:form id="dataTableForm">
+                        <h:dataTable value="#{colisBean.listeColis}" var="colis"
+                                     styleClass="data-table"
+                                     headerClass="table-header"
+                                     rowClasses="table-row">
+
+                            <h:column>
+                                <f:facet name="header">Référence</f:facet>
+                                <h:outputText value="#{colis.numeroSuivi}" />
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Client</f:facet>
+                                <h:outputText value="#{colis.utilisateur.nom} #{colis.utilisateur.prenom}" />
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Destination</f:facet>
+                                <h:outputText value="#{colis.adresseDestinataire.rue}, #{colis.adresseDestinataire.ville},
+                                #{colis.adresseDestinataire.codePostal}, #{colis.adresseDestinataire.pays}" />
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Statut</f:facet>
+                                <h:outputText value="Livré" styleClass="status-badge status-delivered"
+                                              rendered="#{colis.status.toString() eq 'LIVRE'}" />
+                                <h:outputText value="En transit" styleClass="status-badge status-transit"
+                                              rendered="#{colis.status.toString() eq 'EN_TRANSIT'}" />
+                                <h:outputText value="En attente" styleClass="status-badge status-pending"
+                                              rendered="#{colis.status.toString() eq 'EN_ATTENTE'}" />
+                                <h:outputText value="Retourné" styleClass="status-badge status-returned"
+                                              rendered="#{colis.status.toString() eq 'RETOURNE'}" />
+                                <h:outputText value="Annulé" styleClass="status-badge status-canceled"
+                                              rendered="#{colis.status.toString() eq 'ANNULE'}" />
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Date création</f:facet>
+                                <h:outputText value="#{colisBean.formatDate(colis.dateEnvoi)}" />
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Actions</f:facet>
+                                <div class="action-buttons">
+                                    <h:commandButton value="Voir" styleClass="action-button">
+                                        <f:ajax execute="@this" render=":detailsModal" listener="#{colisBean.chargerColisAModifier(colis)}"
+                                                onevent="function(data) {
+                                                if (data.status === 'success') {
+                                                    document.getElementById('details-modal-overlay').classList.add('show');
+                                                    console.log('Colis chargé:', #{colisBean.description != null});
+                                                }
+                                            }" />
+                                    </h:commandButton>
+
+                                    <h:commandButton value="Modifier"
+                                                     styleClass="action-button">
+                                        <f:ajax render=":editForm" listener="#{colisBean.chargerColisAModifierA(colis)}" onevent="function(data) { if (data.status === 'success') { document.getElementById('edit-modal-overlay').classList.add('show'); } }" />
+                                    </h:commandButton>
+
+                                    <h:commandButton value="Bordereau"
+                                                     styleClass="action-button action-pdf"
+                                                     title="Générer bordereau d'expédition">
+                                    </h:commandButton>
+
+                                    <h:commandButton value="Supprimer"
+                                                     action="#{colisBean.supprimerColis}"
+                                                     onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce colis?');"
+                                                     styleClass="action-button delete">
+                                        <f:setPropertyActionListener target="#{colisBean.colisId}" value="#{colis.id}" />
+                                    </h:commandButton>
+                                </div>
+                            </h:column>
+                        </h:dataTable>
+                    </h:form>
+
+                    <!-- Pagination -->
+                    <ui:include src="/WEB-INF/includes/pagination.xhtml" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire d'ajout de colis -->
+        <ui:include src="/WEB-INF/components/colis-form.xhtml" />
+
+        <!-- Formulaire de modification de colis -->
+        <ui:include src="/WEB-INF/components/edit-colis-form.xhtml" />
+
+        <!-- Modal de détails du colis -->
+        <ui:include src="/WEB-INF/components/details-colis.xhtml" />
+    </ui:define>
+</ui:composition>
