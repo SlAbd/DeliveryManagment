@@ -17,7 +17,11 @@
         <!-- Main Content -->
         <main class="main-content" id="main-content">
             <!-- Navbar -->
-            <ui:include src="/WEB-INF/includes/navbar.xhtml" />
+            <ui:include src="/WEB-INF/includes/navbar.xhtml">
+                <ui:param name="pageTitle" value="#{null}">
+                    <ui:insert name="page-title">Tableau de bord</ui:insert>
+                </ui:param>
+            </ui:include>
 
             <!-- Content -->
             <div class="content">

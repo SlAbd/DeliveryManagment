@@ -4,31 +4,26 @@
                 xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
                 template="/WEB-INF/templates/template.xhtml">
 
-    <ui:define name="title">Gestion des Colis - Admin Dashboard</ui:define>
+    <ui:define name="title">Colis En Attente - Admin Dashboard</ui:define>
 
-    <ui:define name="page-title">Gestion des Colis</ui:define>
+    <ui:define name="page-title">Colis En Attente</ui:define>
 
     <ui:define name="content">
         <!-- Page Header -->
         <div class="page-header">
-            <h1 class="page-title">Tous les colis</h1>
-            <button type="button" class="btn btn-primary" id="open-modal-btn">
-                <i class="ri-add-line"></i> Ajouter un colis
-            </button>
+            <h1 class="page-title">Colis en attente</h1>
         </div>
-
-        <!-- Section de filtrage par statut -->
-        <!--<ui:include src="/WEB-INF/components/status-filter.xhtml" /> -->
 
         <!-- Colis List -->
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">Liste des colis</h2>
+                <h2 class="card-title">Liste des colis en attente</h2>
                 <div class="flex items-center gap-2">
                     <h:form id="searchForm">
                         <div class="search-container">
-                            <h:inputText id="searchQuery" value="#{colisBean.searchQuery}" styleClass="form-control" style="width: 250px;" placeholder="Rechercher..." />
-                            <h:commandButton value="Rechercher" action="#{colisBean.rechercher}" styleClass="btn btn-outline btn-sm">
+                            <h:inputText id="searchQuery" value="#{colisEnAttenteBean.searchQuery}" styleClass="form-control" style="width: 250px;" placeholder="Rechercher..." />
+                            <h:commandButton value="Rechercher" action="#{colisEnAttenteBean.rechercher}" styleClass="btn btn-outline btn-sm">
+                                <i class="ri-search-line"></i>
                                 <f:ajax execute="searchQuery" render=":dataTableForm :paginationForm :paginationInfoForm" />
                             </h:commandButton>
                         </div>
@@ -38,9 +33,9 @@
 
             <div class="card-body">
                 <div class="table-container">
-                    <!-- Tableau des colis -->
+                    <!-- Tableau des colis en attente -->
                     <h:form id="dataTableForm">
-                        <h:dataTable value="#{colisBean.listeColis}" var="colis"
+                        <h:dataTable value="#{colisEnAttenteBean.listeColis}" var="colis"
                                      styleClass="data-table"
                                      headerClass="table-header"
                                      rowClasses="table-row">
@@ -62,40 +57,30 @@
                             </h:column>
 
                             <h:column>
-                                <f:facet name="header">Statut</f:facet>
-                                <h:outputText value="Livré" styleClass="status-badge status-delivered"
-                                              rendered="#{colis.status.toString() eq 'LIVRE'}" />
-                                <h:outputText value="En transit" styleClass="status-badge status-transit"
-                                              rendered="#{colis.status.toString() eq 'EN_TRANSIT'}" />
-                                <h:outputText value="En attente" styleClass="status-badge status-pending"
-                                              rendered="#{colis.status.toString() eq 'EN_ATTENTE'}" />
-                                <h:outputText value="Retourné" styleClass="status-badge status-returned"
-                                              rendered="#{colis.status.toString() eq 'RETOURNE'}" />
-                                <h:outputText value="Annulé" styleClass="status-badge status-canceled"
-                                              rendered="#{colis.status.toString() eq 'ANNULE'}" />
-                            </h:column>
-
-                            <h:column>
                                 <f:facet name="header">Date création</f:facet>
-                                <h:outputText value="#{colisBean.formatDate(colis.dateEnvoi)}" />
+                                <h:outputText value="#{colisEnAttenteBean.formatDate(colis.dateEnvoi)}" />
                             </h:column>
 
                             <h:column>
                                 <f:facet name="header">Actions</f:facet>
                                 <div class="action-buttons">
                                     <h:commandButton value="Voir" styleClass="action-button">
-                                        <f:ajax execute="@this" render=":detailsModal" listener="#{colisBean.chargerColisAModifier(colis)}"
+                                        <f:ajax execute="@this" render=":detailsModal" listener="#{colisEnAttenteBean.chargerColisAModifier(colis)}"
                                                 onevent="function(data) {
                                                 if (data.status === 'success') {
                                                     document.getElementById('details-modal-overlay').classList.add('show');
-                                                    console.log('Colis chargé:', #{colisBean.description != null});
                                                 }
                                             }" />
                                     </h:commandButton>
 
+                                    <h:commandButton value="Assigner"
+                                                     styleClass="action-button">
+                                        <f:ajax render=":assignForm" listener="#{colisEnAttenteBean.chargerColisAAssigner(colis)}" onevent="function(data) { if (data.status === 'success') { document.getElementById('assign-modal-overlay').classList.add('show'); } }" />
+                                    </h:commandButton>
+
                                     <h:commandButton value="Modifier"
                                                      styleClass="action-button">
-                                        <f:ajax render=":editForm" listener="#{colisBean.chargerColisAModifierA(colis)}" onevent="function(data) { if (data.status === 'success') { document.getElementById('edit-modal-overlay').classList.add('show'); } }" />
+                                        <f:ajax render=":editForm" listener="#{colisEnAttenteBean.chargerColisAModifier(colis)}" onevent="function(data) { if (data.status === 'success') { document.getElementById('edit-modal-overlay').classList.add('show'); } }" />
                                     </h:commandButton>
 
                                     <h:commandButton value="Bordereau"
@@ -104,10 +89,10 @@
                                     </h:commandButton>
 
                                     <h:commandButton value="Supprimer"
-                                                     action="#{colisBean.supprimerColis}"
+                                                     action="#{colisEnAttenteBean.supprimerColis}"
                                                      onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce colis?');"
                                                      styleClass="action-button delete">
-                                        <f:setPropertyActionListener target="#{colisBean.colisId}" value="#{colis.id}" />
+                                        <f:setPropertyActionListener target="#{colisEnAttenteBean.colisId}" value="#{colis.id}" />
                                     </h:commandButton>
                                 </div>
                             </h:column>
@@ -120,13 +105,13 @@
             </div>
         </div>
 
-        <!-- Formulaire d'ajout de colis -->
-        <ui:include src="/WEB-INF/components/colis-form.xhtml" />
-
         <!-- Formulaire de modification de colis -->
         <ui:include src="/WEB-INF/components/edit-colis-form.xhtml" />
 
         <!-- Modal de détails du colis -->
         <ui:include src="/WEB-INF/components/details-colis.xhtml" />
+
+        <!-- Modal d'assignation à un livreur -->
+       <!-- <ui:include src="/WEB-INF/components/assign-colis-form.xhtml" /> -->
     </ui:define>
 </ui:composition>

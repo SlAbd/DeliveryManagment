@@ -2,6 +2,9 @@ package com.project.deliveryms.entities;
 
 import jakarta.persistence.*;
 import com.project.deliveryms.enums.Role;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -14,6 +17,8 @@ public class Utilisateur {
     private String prenom;
     private String email;
     private String motDePasse;
+    private LocalDateTime creationDate;
+    private LocalDateTime lastConnectionDate;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -73,5 +78,21 @@ public class Utilisateur {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public LocalDateTime getLastConnectionDate() {
+        return lastConnectionDate;
+    }
+
+    public void setLastConnectionDate(LocalDateTime lastConnectionDate) {
+        this.lastConnectionDate = lastConnectionDate;
     }
 }

@@ -48,6 +48,9 @@ public class UtilisateurService {
             return "Email déjà utilisé. Veuillez en choisir un autre.";
         }
 
+        utilisateur.setCreationDate(java.time.LocalDateTime.now());
+        utilisateur.setLastConnectionDate(java.time.LocalDateTime.now());
+
         // Hashing du mot de passe avant de l'enregistrer
         String motDePasseHash = BCrypt.hashpw(utilisateur.getMotDePasse(), BCrypt.gensalt());
         utilisateur.setMotDePasse(motDePasseHash);
