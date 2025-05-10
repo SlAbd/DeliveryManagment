@@ -126,7 +126,7 @@ public class ColisLivresBean implements Serializable {
     public String archiverColis() {
         try {
             // Récupérer le colis
-            Colis colis = colisService.findById(colisId);
+            Colis colis = colisService.getColisByNumeroSuivi(numeroSuivi);
             if (colis == null) {
                 throw new EntityNotFoundException("Colis non trouvé");
             }

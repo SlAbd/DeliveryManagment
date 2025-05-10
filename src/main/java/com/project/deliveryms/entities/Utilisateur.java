@@ -2,6 +2,7 @@ package com.project.deliveryms.entities;
 
 import jakarta.persistence.*;
 import com.project.deliveryms.enums.Role;
+import java.util.List;
 
 @Entity
 public class Utilisateur {
@@ -17,12 +18,24 @@ public class Utilisateur {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToMany(mappedBy = "utilisateur")
+    private List<Colis> colis;
+
+
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public List<Colis> getColis() {
+        return colis;
+    }
+    public void setColis(List<Colis> colis) {
+        this.colis = colis;
     }
 
     public String getNom() {

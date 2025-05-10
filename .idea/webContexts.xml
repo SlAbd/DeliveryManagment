@@ -4,6 +4,7 @@
     <option name="state">
       <map>
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/includes/head.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/includes" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/includes/scripts.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/includes" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/includes/sidebar.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/includes" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/pages/ajouterColis.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/WEB-INF/pages" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/admin/admin-dashbord.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/admin" />
