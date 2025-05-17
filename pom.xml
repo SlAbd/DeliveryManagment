@@ -107,6 +107,12 @@
             <artifactId>jakarta.enterprise.cdi-api</artifactId>
             <version>4.1.0</version> <!-- Ensure this is included for CDI -->
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.itextpdf/itextpdf -->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.13.4</version>
+        </dependency>
 
         <dependency>
             <groupId>net.connectedcaching</groupId>
@@ -117,6 +123,11 @@
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
             <version>0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.12.0</version> <!-- Update this version as needed -->
         </dependency>
 
     </dependencies>

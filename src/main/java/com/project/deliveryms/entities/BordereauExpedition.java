@@ -10,15 +10,12 @@ public class BordereauExpedition {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime dateGeneration;
-
-    private String cheminFichierPdf;
-
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private Colis colis;
 
-    // Getters et Setters
+    private LocalDateTime dateGeneration;  // ✅ Add this field
 
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -27,27 +24,19 @@ public class BordereauExpedition {
         this.id = id;
     }
 
-    public LocalDateTime getDateGeneration() {
-        return dateGeneration;
-    }
-
-    public void setDateGeneration(LocalDateTime dateGeneration) {
-        this.dateGeneration = dateGeneration;
-    }
-
-    public String getCheminFichierPdf() {
-        return cheminFichierPdf;
-    }
-
-    public void setCheminFichierPdf(String cheminFichierPdf) {
-        this.cheminFichierPdf = cheminFichierPdf;
-    }
-
     public Colis getColis() {
         return colis;
     }
 
     public void setColis(Colis colis) {
         this.colis = colis;
+    }
+
+    public LocalDateTime getDateGeneration() {
+        return dateGeneration;
+    }
+
+    public void setDateGeneration(LocalDateTime dateGeneration) {
+        this.dateGeneration = dateGeneration;
     }
 }
