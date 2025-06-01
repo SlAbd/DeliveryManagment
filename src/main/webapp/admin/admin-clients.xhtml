@@ -461,7 +461,7 @@
                 });
             }
 
-            // User dropdown toggle - FIXED
+            // User dropdown toggle
             const userMenuButton = document.getElementById('user-menu-button');
             const userDropdown = document.getElementById('user-dropdown');
 
@@ -488,7 +488,6 @@
         });
     </script>
 </h:head>
-
 <h:body>
     <div class="admin-layout">
         <!-- Sidebar -->
@@ -599,16 +598,17 @@
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
         <!-- Main Content -->
-        <main class="main-content" id="main-content">
+        <div class="main-content" id="main-content">
             <!-- Navbar -->
             <nav class="navbar">
                 <div class="navbar-left">
                     <button type="button" class="sidebar-toggle" id="mobile-sidebar-toggle" aria-label="Toggle Mobile Sidebar">
                         <i class="ri-menu-line"></i>
                     </button>
-                    <h1 class="navbar-title">Tableau de bord</h1>
+                    <h1 class="navbar-title">Gestion des Clients</h1>
                 </div>
                 <div class="navbar-right">
+                    <!-- User Dropdown -->
                     <div class="dropdown">
                         <button type="button" class="sidebar-menu-button" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
                             <i class="ri-user-line"></i>
@@ -641,155 +641,141 @@
 
             <!-- Content -->
             <div class="content">
-                <!-- Dashboard Cards -->
-                <div class="dashboard-cards">
+                <h:form>
+
+
+                    <!-- Barre de recherche -->
+                    <div class="card">
+                        <h:panelGrid columns="2" cellpadding="5">
+                            <h:outputLabel value="🔍 Rechercher un client : " for="searchTerm"/>
+                            <h:inputText id="searchTerm" value="#{clientWithPackagesController.searchTerm}" >
+                                <f:ajax event="keyup" render="clientsTable statistics top5" listener="#{clientWithPackagesController.searchClientsWithPackages}" />
+                            </h:inputText>
+                        </h:panelGrid>
+                    </div>
+
+                    <br/>
+
+                    <!-- Statistiques -->
+                    <div class="dashboard-cards">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Total Clients</div>
+                                <div class="card-icon"><i class="ri-user-line"></i></div>
+                            </div>
+                            <div class="card-value">#{clientWithPackagesController.clientsWithPackagesCount}</div>
+                            <div class="card-description">Clients avec colis actifs</div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Colis Actifs</div>
+                                <div class="card-icon"><i class="ri-box-3-line"></i></div>
+                            </div>
+                            <div class="card-value">#{clientWithPackagesController.activeColis}</div>
+                            <div class="card-description">Nombre total de colis en gestion</div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Nouveaux Clients</div>
+                                <div class="card-icon"><i class="ri-user-add-line"></i></div>
+                            </div>
+                            <div class="card-value">#{clientWithPackagesController.newClientsCount}</div>
+                            <div class="card-description">Nouveaux clients (7 derniers jours)</div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Moyenne Colis/Client</div>
+                                <div class="card-icon"><i class="ri-bar-chart-line"></i></div>
+                            </div>
+                            <div class="card-value">#{clientWithPackagesController.averagePackagesPerClient}</div>
+                            <div class="card-description">Nombre moyen de colis par client</div>
+                        </div>
+                    </div>
+
+
+
+                    <br/>
+
+                    <!-- Tableau des clients -->
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">Total Colis</h2>
-                            <div class="card-icon">
-                                <i class="ri-box-3-line"></i>
-                            </div>
+                            <div class="card-title">Liste des Clients</div>
                         </div>
-                        <div class="card-value">248</div>
-                        <div class="card-description">
-                            <span class="text-green-500">+12%</span> depuis le mois dernier
+                        <div class="table-container">
+                            <h:dataTable id="clientsTable" value="#{clientWithPackagesController.clientsWithPackages}" var="client"
+                                         styleClass="data-table" width="100%">
+                                <h:column>
+                                    <f:facet name="header">Nom</f:facet>
+                                    #{client.nom}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Prénom</f:facet>
+                                    #{client.prenom}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Email</f:facet>
+                                    #{client.email}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Colis</f:facet>
+                                    #{clientWithPackagesController.getPackageCount(client.id)}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Date Création</f:facet>
+                                    <h:outputText value="#{clientWithPackagesController.getConvertedCreationDate(client)}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                                    </h:outputText>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Actions</f:facet>
+                                    <button class="action-button">
+                                        <i class="ri-eye-line"></i> Voir
+                                    </button>
+                                    <button class="action-button">
+                                        <i class="ri-edit-line"></i> Éditer
+                                    </button>
+                                </h:column>
+                            </h:dataTable>
                         </div>
                     </div>
 
+                    <br/>
+
+                    <!-- Top 5 clients -->
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">En attente</h2>
-                            <div class="card-icon">
-                                <i class="ri-time-line"></i>
-                            </div>
+                            <div class="card-title">🏆 Top 5 Clients</div>
                         </div>
-                        <div class="card-value">42</div>
-                        <div class="card-description">
-                            <span class="text-yellow-500">+5%</span> depuis la semaine dernière
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">En transit</h2>
-                            <div class="card-icon">
-                                <i class="ri-truck-line"></i>
-                            </div>
-                        </div>
-                        <div class="card-value">86</div>
-                        <div class="card-description">
-                            <span class="text-blue-500">+18%</span> depuis la semaine dernière
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Livreurs actifs</h2>
-                            <div class="card-icon">
-                                <i class="ri-user-star-line"></i>
-                            </div>
-                        </div>
-                        <div class="card-value">24</div>
-                        <div class="card-description">
-                            <span class="text-green-500">+3</span> nouveaux livreurs ce mois
+                        <div class="table-container">
+                            <h:dataTable id="top5" value="#{clientWithPackagesController.top5Clients}" var="topClient"
+                                         styleClass="data-table">
+                                <h:column>
+                                    <f:facet name="header">Nom Complet</f:facet>
+                                    #{topClient.prenom} #{topClient.nom}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Email</f:facet>
+                                    #{topClient.email}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Nb Colis</f:facet>
+                                    #{clientWithPackagesController.getPackageCount(topClient.id)}
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Actions</f:facet>
+                                    <button class="action-button">
+                                        <i class="ri-eye-line"></i> Détails
+                                    </button>
+                                </h:column>
+                            </h:dataTable>
                         </div>
                     </div>
-                </div>
-
-                <!-- Recent Deliveries - FIXED -->
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Livraisons récentes</h2>
-                    </div>
-
-                    <!-- Table Container -->
-                    <div class="table-container">
-                        <h:dataTable value="#{adminBean.recentDeliveries}" var="delivery"
-                                     styleClass="data-table"
-                                     headerClass="table-header"
-                                     rowClasses="table-row">
-                            <h:column>
-                                <f:facet name="header">ID</f:facet>
-                                <h:outputText value="#{delivery.id}" />
-                            </h:column>
-
-                            <h:column>
-                                <f:facet name="header">Client</f:facet>
-                                <h:outputText value="#{delivery.clientName}" />
-                            </h:column>
-
-                            <h:column>
-                                <f:facet name="header">Livreur</f:facet>
-                                <h:outputText value="#{delivery.deliveryPersonName}" />
-                            </h:column>
-
-                            <h:column>
-                                <f:facet name="header">Statut</f:facet>
-                                <h:outputText value="Livré" styleClass="status-badge status-delivered"
-                                              rendered="#{delivery.status == 'DELIVERED'}" />
-                                <h:outputText value="En transit" styleClass="status-badge status-transit"
-                                              rendered="#{delivery.status == 'IN_TRANSIT'}" />
-                                <h:outputText value="En attente" styleClass="status-badge status-pending"
-                                              rendered="#{delivery.status == 'PENDING'}" />
-                            </h:column>
-
-                            <h:column>
-                                <f:facet name="header">Date</f:facet>
-                                <h:outputText value="#{delivery.date}">
-                                    <f:convertDateTime pattern="dd/MM/yyyy" />
-                                </h:outputText>
-                            </h:column>
-
-                            <h:column>
-                                <f:facet name="header">Actions</f:facet>
-                                <h:commandButton value="Détails" action="#{adminBean.viewDeliveryDetails(delivery.id)}"
-                                                 styleClass="action-button" />
-                            </h:column>
-                        </h:dataTable>
-
-                        <!-- Fallback static table for demo purposes -->
-                        <table class="data-table" rendered="#{empty adminBean.recentDeliveries}">
-                            <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Client</th>
-                                <th>Livreur</th>
-                                <th>Statut</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>#12345</td>
-                                <td>Jean Dupont</td>
-                                <td>Ahmed Benali</td>
-                                <td><span class="status-badge status-delivered">Livré</span></td>
-                                <td>05/07/2025</td>
-                                <td><button class="action-button">Détails</button></td>
-                            </tr>
-                            <tr>
-                                <td>#12344</td>
-                                <td>Marie Martin</td>
-                                <td>Karim Alaoui</td>
-                                <td><span class="status-badge status-transit">En transit</span></td>
-                                <td>05/07/2025</td>
-                                <td><button class="action-button">Détails</button></td>
-                            </tr>
-                            <tr>
-                                <td>#12343</td>
-                                <td>Pierre Dubois</td>
-                                <td>Non assigné</td>
-                                <td><span class="status-badge status-pending">En attente</span></td>
-                                <td>04/07/2025</td>
-                                <td><button class="action-button">Détails</button></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                </h:form>
             </div>
-        </main>
+        </div>
     </div>
 </h:body>
 </html>

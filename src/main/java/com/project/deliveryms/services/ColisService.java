@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 
 
 import java.time.LocalDateTime;
@@ -134,5 +135,60 @@ public class ColisService {
          colisRepository.update(colis);
 
         return colis;
+    }
+    /// //////////////////////////
+    public List<Colis> findAll() {
+        TypedQuery<Colis> query = em.createQuery("SELECT c FROM Colis c", Colis.class);
+        return query.getResultList();
+    }
+
+    public List<Colis> findAllNonDeleted() {
+        TypedQuery<Colis> query = em.createQuery("SELECT c FROM Colis c WHERE c.deleted = false", Colis.class);
+        return query.getResultList();
+    }
+
+    public List<Colis> findByStatus(StatusColis status) {
+        TypedQuery<Colis> query = em.createQuery("SELECT c FROM Colis c WHERE c.status = :status AND c.deleted = false", Colis.class);
+        query.setParameter("status", status);
+        return query.getResultList();
+    }
+
+    public List<Colis> findByUser(Utilisateur utilisateur) {
+        TypedQuery<Colis> query = em.createQuery("SELECT c FROM Colis c WHERE c.utilisateur = :utilisateur AND c.deleted = false", Colis.class);
+        query.setParameter("utilisateur", utilisateur);
+        return query.getResultList();
+    }
+
+    public List<Colis> findByUserId(Long userId) {
+        TypedQuery<Colis> query = em.createQuery("SELECT c FROM Colis c WHERE c.utilisateur.id = :userId AND c.deleted = false", Colis.class);
+        query.setParameter("userId", userId);
+        return query.getResultList();
+    }
+
+    public Colis findById(Long id) {
+        return em.find(Colis.class, id);
+    }
+
+    public Colis save(Colis colis) {
+        if (colis.getId() == null) {
+            em.persist(colis);
+            return colis;
+        } else {
+            return em.merge(colis);
+        }
+    }
+
+    public void remove(Long id) {
+        Colis colis = findById(id);
+        if (colis != null) {
+            colis.setDeleted(true);
+            em.merge(colis);
+        }
+    }
+
+    public int countColisByUserId(Long userId) {
+        TypedQuery<Long> query = em.createQuery("SELECT COUNT(c) FROM Colis c WHERE c.utilisateur.id = :userId AND c.deleted = false", Long.class);
+        query.setParameter("userId", userId);
+        return query.getSingleResult().intValue();
     }
 }

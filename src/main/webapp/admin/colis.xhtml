@@ -6,6 +6,74 @@
 
     <ui:define name="title">Gestion des Colis - Admin Dashboard</ui:define>
 
+    <ui:define name="header">
+        <!-- Navbar intégrée directement dans la page -->
+        <nav class="navbar">
+            <div class="navbar-left">
+                <button type="button" class="sidebar-toggle" id="mobile-sidebar-toggle" aria-label="Toggle Mobile Sidebar">
+                    <i class="ri-menu-line"></i>
+                </button>
+                <h1 class="navbar-title">Gestion des Colis</h1>
+            </div>
+            <div class="navbar-right">
+                <!-- User Dropdown -->
+                <div class="dropdown">
+                    <button type="button" class="sidebar-menu-button" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                        <i class="ri-user-line"></i>
+                        <span class="sidebar-menu-button-text">Admin User</span>
+                        <i class="ri-arrow-down-s-line"></i>
+                    </button>
+
+                    <!-- User Dropdown Menu -->
+                    <div class="dropdown-menu" id="user-dropdown">
+                        <div class="dropdown-header">
+                            <div class="dropdown-header-info">
+                                <span class="dropdown-header-name">Admin User</span>
+                                <span class="dropdown-header-email">admin@example.com</span>
+                            </div>
+                        </div>
+                        <div class="dropdown-body">
+                            <a href="#" class="dropdown-item">
+                                <i class="ri-user-settings-line"></i>
+                                Profil
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="ri-settings-3-line"></i>
+                                Paramètres
+                            </a>
+                            <a href="#" class="dropdown-item">
+                                <i class="ri-logout-box-line"></i>
+                                Déconnexion
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- JavaScript pour gérer le dropdown -->
+        <h:outputScript>
+            document.addEventListener('DOMContentLoaded', function() {
+                const userMenuButton = document.getElementById('user-menu-button');
+                const userDropdown = document.getElementById('user-dropdown');
+
+                userMenuButton.addEventListener('click', function() {
+                    const expanded = this.getAttribute('aria-expanded') === 'true';
+                    this.setAttribute('aria-expanded', !expanded);
+                    userDropdown.classList.toggle('show');
+                });
+
+                // Fermer le dropdown quand on clique ailleurs
+                document.addEventListener('click', function(event) {
+                    if (!userMenuButton.contains(event.target) &amp;&amp; !userDropdown.contains(event.target)) {
+                        userMenuButton.setAttribute('aria-expanded', 'false');
+                        userDropdown.classList.remove('show');
+                    }
+                });
+            });
+        </h:outputScript>
+    </ui:define>
+
     <ui:define name="page-title">Gestion des Colis</ui:define>
 
     <ui:define name="content">
