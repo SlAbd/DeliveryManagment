@@ -21,4 +21,6 @@
         <welcome-file>index.xhtml</welcome-file> <!-- Change index.jsp to index.xhtml -->
     </welcome-file-list>
 
+
+
 </web-app>

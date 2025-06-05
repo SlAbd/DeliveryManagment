@@ -1,18 +1,39 @@
 package com.project.deliveryms.repositories;
 
 import com.project.deliveryms.entities.Colis;
+import com.project.deliveryms.enums.StatusColis;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 
 import java.util.List;
 
 @Stateless
-public class ColisRepository {
+public class ColisRepository  {
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @PersistenceContext
     private EntityManager em;
+    public Colis find(Long id) {
+        return entityManager.find(Colis.class, id);
+    }
+
+
+
+
+    public List<Colis> findColisNonAffectes() {
+        TypedQuery<Colis> query = entityManager.createQuery(
+                "SELECT c FROM Colis c WHERE (c.livreur IS NULL OR c.status IS NULL OR c.status = :status)",
+                Colis.class
+        );
+        query.setParameter("status", StatusColis.EN_ATTENTE); // Pour récupérer les colis avec statut "EN_ATTENTE"
+
+        return query.getResultList();
+    }
+
 
     public void save(Colis colis) {
         em.persist(colis);

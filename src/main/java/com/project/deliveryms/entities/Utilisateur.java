@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED) // c'est ce que tu as fait
+@Table(name = "Utilisateur")
 public class Utilisateur {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,6 +14,10 @@ public class Colis {
 
     private String numeroSuivi;
 
+    @ManyToOne
+    @JoinColumn(name = "utilisateur_id") // ou le nom de votre colonne FK
+    private Utilisateur utilisateur;
+
 
     private String description;
     private double poids;
@@ -30,31 +34,8 @@ public class Colis {
     @ManyToOne
     private Livreur livreur;
 
-    @ManyToOne
-    @JoinColumn(name = "utilisateur_id")
-    private Utilisateur utilisateur;
-
-    private boolean deleted ;
-
-
-    public boolean getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
-
-
     // Getters et setters
 
-    public Utilisateur getUtilisateur() {
-        return utilisateur;
-    }
-    public void setUtilisateur(Utilisateur utilisateur) {
-        this.utilisateur = utilisateur;
-    }
     public Long getId() {
         return id;
     }
@@ -113,6 +94,12 @@ public class Colis {
     }
 
     public void setPoids(double poids) {
-        this.poids = poids;
+        this.poids =poids;
+}
+
+    public void setUtilisateur(Utilisateur utilisateur) {
+    }
+
+    public void setDeleted(boolean b) {
     }
 }

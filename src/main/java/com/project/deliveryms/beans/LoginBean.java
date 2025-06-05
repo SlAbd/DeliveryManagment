@@ -1,6 +1,7 @@
 package com.project.deliveryms.beans;
 
 import com.project.deliveryms.entities.Utilisateur;
+import com.project.deliveryms.enums.Role;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -20,31 +21,36 @@ public class LoginBean implements Serializable {
     private String email;
     private String motDePasse;
 
+    private Role role; // "admin", "livreur", etc.
+
     @Inject
     private UtilisateurService utilisateurService; // Injection du service
 
     public String login() {
         String result = utilisateurService.authentifier(email, motDePasse);
 
-        System.out.println("Résultat authentification: " + result); // Débogage
-
         if ("Connexion réussie".equals(result)) {
-            // L'authentification est réussie, vous récupérez l'utilisateur par son email
             utilisateur = utilisateurService.findUserByEmail(email);
+
             if (utilisateur != null) {
-                System.out.println("Utilisateur récupéré : " + utilisateur.getPrenom() + " " + utilisateur.getNom());
-            } else {
-                System.out.println("Utilisateur non trouvé après authentification.");
+                Role role = utilisateur.getRole();
+                if (role == Role.ADMIN) {
+                    return "/admin/admin-dashboard.xhtml?faces-redirect=true";
+                } else if (role == Role.LIVREUR) {
+                    return "/livreur/dashboard.xhtml?faces-redirect=true";
+                } else {
+                    return "/pages/dashboard.xhtml?faces-redirect=true";
+                }
             }
-            return "/pages/dashboard.xhtml?faces-redirect=true";
         } else {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             facesContext.getExternalContext().getFlash().setKeepMessages(true);
             facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, result, null));
-            System.out.println("Message ajouté: " + result); // Débogage
-            return null; // Reste sur la même page sans redirection
         }
+
+        return null;
     }
+
 
     // Getters et setters
     public Utilisateur getUtilisateur() {
