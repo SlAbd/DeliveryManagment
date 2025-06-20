@@ -1,14 +1,21 @@
 package com.project.deliveryms.beans;
 
+import com.project.deliveryms.entities.BordereauExpedition;
 import com.project.deliveryms.entities.Colis;
 import com.project.deliveryms.entities.Utilisateur;
 import com.project.deliveryms.enums.StatusColis;
+import com.project.deliveryms.services.BordereauService;
 import com.project.deliveryms.services.ColisService;
+import com.itextpdf.text.DocumentException;
 import jakarta.annotation.PostConstruct;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,12 +31,12 @@ public class MesColisBean implements Serializable {
 
     private List<Colis> userColis = new ArrayList<>();
     private List<Colis> filteredColis = new ArrayList<>();
-    
+
     // Filtres
     private String filtreTypeStatus = "";
     private LocalDateTime filtreDateDebut;
     private LocalDateTime filtreDateFin;
-    
+
     // Pagination
     private int currentPage = 1;
     private int pageSize = 10;
@@ -37,6 +44,9 @@ public class MesColisBean implements Serializable {
 
     @Inject
     private ColisService colisService;
+
+    @Inject
+    private BordereauService bordereauService;
 
     @Inject
     private LoginBean loginBean;
@@ -48,58 +58,45 @@ public class MesColisBean implements Serializable {
         calculateTotalItems();
     }
 
-    /**
-     * Charge tous les colis de l'utilisateur connecté
-     */
     private void loadUserColis() {
         Utilisateur utilisateur = loginBean.getUtilisateur();
         if (utilisateur != null) {
-            // Récupérer tous les colis et filtrer par utilisateur
             List<Colis> allColis = colisService.getAllColisWithDetails();
             userColis = allColis.stream()
-                    .filter(c -> c.getUtilisateur() != null && 
-                           c.getUtilisateur().getId().equals(utilisateur.getId()) &&
-                           !c.getDeleted())
+                    .filter(c -> c.getUtilisateur() != null &&
+                            c.getUtilisateur().getId().equals(utilisateur.getId()) &&
+                            !c.getDeleted())
                     .collect(Collectors.toList());
         }
     }
-    
-    /**
-     * Applique les filtres sur la liste des colis
-     */
+
     public String filtrer() {
         filteredColis = userColis;
-        
-        // Filtre par statut
+
         if (filtreTypeStatus != null && !filtreTypeStatus.isEmpty()) {
             filteredColis = filteredColis.stream()
-                .filter(c -> c.getStatus() != null && c.getStatus().toString().equals(filtreTypeStatus))
-                .collect(Collectors.toList());
+                    .filter(c -> c.getStatus() != null && c.getStatus().toString().equals(filtreTypeStatus))
+                    .collect(Collectors.toList());
         }
-        
-        // Filtre par date de début
+
         if (filtreDateDebut != null) {
             filteredColis = filteredColis.stream()
-                .filter(c -> c.getDateEnvoi() != null && c.getDateEnvoi().isAfter(filtreDateDebut))
-                .collect(Collectors.toList());
+                    .filter(c -> c.getDateEnvoi() != null && c.getDateEnvoi().isAfter(filtreDateDebut))
+                    .collect(Collectors.toList());
         }
-        
-        // Filtre par date de fin
+
         if (filtreDateFin != null) {
             filteredColis = filteredColis.stream()
-                .filter(c -> c.getDateEnvoi() != null && c.getDateEnvoi().isBefore(filtreDateFin))
-                .collect(Collectors.toList());
+                    .filter(c -> c.getDateEnvoi() != null && c.getDateEnvoi().isBefore(filtreDateFin))
+                    .collect(Collectors.toList());
         }
-        
+
         calculateTotalItems();
-        currentPage = 1; // Revenir à la première page après filtrage
-        
+        currentPage = 1;
+
         return null;
     }
-    
-    /**
-     * Réinitialise les filtres
-     */
+
     public String reinitialiserFiltres() {
         filtreTypeStatus = "";
         filtreDateDebut = null;
@@ -107,20 +104,14 @@ public class MesColisBean implements Serializable {
         filteredColis = new ArrayList<>(userColis);
         calculateTotalItems();
         currentPage = 1;
-        
+
         return null;
     }
-    
-    /**
-     * Calcule le nombre total d'éléments après filtrage
-     */
+
     private void calculateTotalItems() {
         this.totalItems = filteredColis != null ? filteredColis.size() : 0;
     }
-    
-    /**
-     * Retourne les colis de la page courante
-     */
+
     public List<Colis> getCurrentPageItems() {
         if (filteredColis == null || filteredColis.isEmpty()) {
             return new ArrayList<>();
@@ -136,10 +127,7 @@ public class MesColisBean implements Serializable {
 
         return filteredColis.subList(fromIndex, toIndex);
     }
-    
-    /**
-     * Formatte une date au format dd/MM/yyyy
-     */
+
     public String formatDate(LocalDateTime dateTime) {
         if (dateTime == null) {
             return "";
@@ -147,15 +135,12 @@ public class MesColisBean implements Serializable {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return dateTime.format(formatter);
     }
-    
-    /**
-     * Retourne la classe CSS pour le statut d'un colis
-     */
+
     public String getStatusClass(StatusColis status) {
         if (status == null) {
             return "";
         }
-        
+
         switch (status) {
             case EN_TRANSIT:
                 return "bg-yellow-100 text-yellow-800";
@@ -171,75 +156,105 @@ public class MesColisBean implements Serializable {
                 return "";
         }
     }
-    
-    /**
-     * Retourne le nombre total de pages
-     */
+
     public int getTotalPages() {
         if (totalItems == 0) {
             return 1;
         }
         return (int) Math.ceil((double) totalItems / pageSize);
     }
-    
-    /**
-     * Retourne l'index du premier élément de la page courante
-     */
+
     public int getFirstItemIndex() {
         if (totalItems == 0) {
             return 0;
         }
         return (currentPage - 1) * pageSize + 1;
     }
-    
-    /**
-     * Retourne l'index du dernier élément de la page courante
-     */
+
     public int getLastItemIndex() {
         if (totalItems == 0) {
             return 0;
         }
         return Math.min(getFirstItemIndex() + pageSize - 1, totalItems);
     }
-    
-    // Getters et Setters
-    
+
+    // --- Méthode pour générer le PDF ---
+
+    public void genererBordereauPDF(Long colisId) {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        HttpServletResponse response = (HttpServletResponse) facesContext.getExternalContext().getResponse();
+
+        try {
+            Colis colis = colisService.getColisById(colisId);
+            if (colis == null) {
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Colis non trouvé"));
+                return;
+            }
+
+            BordereauExpedition bordereau = colis.getBordereauExpedition();
+
+            if (bordereau == null) {
+                bordereau = new BordereauExpedition();
+                bordereau.setColis(colis);
+                bordereau.setDateGeneration(LocalDateTime.now());
+
+                colis.setBordereauExpedition(bordereau);
+
+                colisService.saveColis(colis);
+            }
+
+            response.reset();
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=\"bordereau_" + colis.getNumeroSuivi() + ".pdf\"");
+
+            bordereauService.generateBordereauPdf(bordereau, response);
+
+            facesContext.responseComplete();
+
+        } catch (DocumentException | IOException e) {
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erreur", "Erreur lors de la génération du PDF"));
+            e.printStackTrace();
+        }
+    }
+
+    // --- Getters & setters ---
+
     public List<Colis> getUserColis() {
         return userColis;
     }
-    
+
     public String getFiltreTypeStatus() {
         return filtreTypeStatus;
     }
-    
+
     public void setFiltreTypeStatus(String filtreTypeStatus) {
         this.filtreTypeStatus = filtreTypeStatus;
     }
-    
+
     public LocalDateTime getFiltreDateDebut() {
         return filtreDateDebut;
     }
-    
+
     public void setFiltreDateDebut(LocalDateTime filtreDateDebut) {
         this.filtreDateDebut = filtreDateDebut;
     }
-    
+
     public LocalDateTime getFiltreDateFin() {
         return filtreDateFin;
     }
-    
+
     public void setFiltreDateFin(LocalDateTime filtreDateFin) {
         this.filtreDateFin = filtreDateFin;
     }
-    
+
     public int getCurrentPage() {
         return currentPage;
     }
-    
+
     public void setCurrentPage(int currentPage) {
         this.currentPage = currentPage;
     }
-    
+
     public int getTotalItems() {
         return totalItems;
     }

@@ -157,10 +157,17 @@
                                             <a href="#" class="text-primary-600 hover:text-primary-900 mr-3">
                                                 <i class="ri-eye-line"></i>
                                             </a>
-                                            <a href="#" class="text-gray-600 hover:text-gray-900">
+                                            <a href="#" class="text-gray-600 hover:text-gray-900 mr-3">
                                                 <i class="ri-information-line"></i>
                                             </a>
+                                            <!-- Bouton génération PDF bordereau -->
+                                            <h:form>
+                                                <h:commandButton value="Bordereau" action="#{mesColisBean.genererBordereauPDF(colis.id)}"
+                                                                 styleClass="inline-flex items-center px-3 py-1 text-xs font-medium rounded-md bg-blue-600 text-white hover:bg-blue-700"
+                                                                 immediate="true" />
+                                            </h:form>
                                         </td>
+
                                     </tr>
                                 </ui:repeat>
                                 </tbody>

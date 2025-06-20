@@ -1,53 +1,56 @@
 package com.project.deliveryms.beans;
 
 import com.project.deliveryms.entities.BordereauExpedition;
-import com.project.deliveryms.entities.Colis;
 import com.project.deliveryms.services.BordereauService;
-import com.itextpdf.text.DocumentException;
-import jakarta.inject.Named;
-import jakarta.enterprise.context.SessionScoped;
+import com.project.deliveryms.services.ColisService;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
+import jakarta.faces.view.ViewScoped;
+import jakarta.inject.Named;
 import jakarta.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
-
-
-import java.io.IOException;
 import java.io.Serializable;
 
 @Named
-@SessionScoped
+@ViewScoped
 public class BordereauBean implements Serializable {
 
     @Inject
     private BordereauService bordereauService;
 
-    private BordereauExpedition bordereau = new BordereauExpedition();
+    @Inject
+    private ColisService colisService;
 
-    public BordereauBean() {
-        // Initialize the colis to avoid null pointer issues
-        bordereau.setColis(new Colis());
-    }
+    public void genererBordereau(Long colisId) {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        ExternalContext externalContext = facesContext.getExternalContext();
 
-    public void generateBordereau() throws DocumentException, IOException {
-        bordereau.setDateGeneration(LocalDateTime.now()); // ✅ Set the date before generating
+        try {
+            // Récupérer le bordereau lié au colis
+            BordereauExpedition bordereau = colisService.getBordereauByColisId(colisId);
+            if (bordereau == null) {
+                facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                        "Erreur", "Bordereau non trouvé pour ce colis"));
+                return;
+            }
 
-        HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance()
-                .getExternalContext().getResponse();
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=bordereau_" + bordereau.getId() + ".pdf");
+            // Préparer la réponse HTTP
+            HttpServletResponse response = (HttpServletResponse) externalContext.getResponse();
+            response.reset();
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=bordereau_" + colisId + ".pdf");
 
-        bordereauService.generateBordereauPdf(bordereau, response);
-        FacesContext.getCurrentInstance().responseComplete();
-    }
+            // Générer le PDF dans la réponse
+            bordereauService.generateBordereauPdf(bordereau, response);
 
+            // Signaler à JSF que la réponse est terminée
+            facesContext.responseComplete();
 
-    // Getters and Setters
-    public BordereauExpedition getBordereau() {
-        return bordereau;
-    }
-
-    public void setBordereau(BordereauExpedition bordereau) {
-        this.bordereau = bordereau;
+        } catch (Exception e) {
+            facesContext.addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                    "Erreur", "Impossible de générer le bordereau"));
+            e.printStackTrace();
+        }
     }
 }

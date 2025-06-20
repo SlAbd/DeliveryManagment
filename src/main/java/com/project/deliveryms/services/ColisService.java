@@ -1,5 +1,6 @@
 package com.project.deliveryms.services;
 
+import com.project.deliveryms.entities.BordereauExpedition;
 import com.project.deliveryms.entities.Colis;
 import com.project.deliveryms.entities.Utilisateur;
 import com.project.deliveryms.entities.Adresse;
@@ -12,14 +13,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 @Stateless
 public class ColisService {
-
 
     @PersistenceContext
     private EntityManager em;
@@ -33,15 +32,14 @@ public class ColisService {
     @Inject
     private AdresseService adresseService;
 
-
     // Création d'un colis sans utilisateur
     public Colis createColis(String description, double poids, Adresse adresseDestinataire) {
         Colis colis = new Colis();
-        colis.setNumeroSuivi(UUID.randomUUID().toString()); // Génération du numéro de suivi unique
+        colis.setNumeroSuivi(UUID.randomUUID().toString());
         colis.setDescription(description);
         colis.setPoids(poids);
         colis.setDateEnvoi(LocalDateTime.now());
-        colis.setStatus(StatusColis.EN_ATTENTE); // Le colis est en attente initialement
+        colis.setStatus(StatusColis.EN_ATTENTE);
         colis.setAdresseDestinataire(adresseDestinataire);
 
         em.persist(colis);
@@ -70,69 +68,61 @@ public class ColisService {
     }
 
     public void deleteColis(Long colisId) {
-        // Recherche le colis par ID
         Colis colis = colisRepository.findById(colisId);
 
         if (colis == null) {
-            // Si colis non trouvé, lancer une exception
             throw new EntityNotFoundException("Colis avec l'ID " + colisId + " non trouvé");
         }
 
-        // Marquer le colis comme supprimé
         colis.setDeleted(true);
-
-        // Sauvegarder le colis avec l'attribut 'deleted' mis à jour
         colisRepository.save(colis);
     }
 
-    /**
-     * Méthode pour mettre à jour les informations d'un colis
-     * @param colisId ID du colis à mettre à jour
-     * @param description Nouvelle description
-     * @param poids Nouveau poids
-     * @param status Nouveau statut
-     * @param rue Nouvelle rue de l'adresse
-     * @param ville Nouvelle ville
-     * @param codePostal Nouveau code postal
-     * @param pays Nouveau pays
-     * @return Le colis mis à jour
-     * @throws EntityNotFoundException si le colis n'est pas trouvé
-     */
     public Colis updateColis(Long colisId, String description, double poids, StatusColis status,
                              String rue, String ville, String codePostal, String pays) {
 
-        // Recherche le colis par ID
         Colis colis = colisRepository.findById(colisId);
 
         if (colis == null) {
             throw new EntityNotFoundException("Colis avec l'ID " + colisId + " non trouvé");
         }
 
-        // Mise à jour des informations du colis
         colis.setDescription(description);
         colis.setPoids(poids);
         colis.setStatus(status);
 
-        // Mise à jour de l'adresse
         Adresse adresse = colis.getAdresseDestinataire();
         if (adresse != null) {
-            // Mise à jour de l'adresse existante
             adresse.setRue(rue);
             adresse.setVille(ville);
             adresse.setCodePostal(codePostal);
             adresse.setPays(pays);
 
-            // Enregistrer les modifications de l'adresse
             adresseService.updateAdresse(adresse);
         } else {
-            // Création d'une nouvelle adresse si elle n'existe pas
             adresse = adresseService.createAdresse(rue, ville, codePostal, pays);
             colis.setAdresseDestinataire(adresse);
         }
 
-        // Sauvegarde du colis mis à jour
-         colisRepository.update(colis);
-
+        colisRepository.update(colis);
         return colis;
+    }
+
+    public BordereauExpedition getBordereauByColisId(Long colisId) {
+        Colis colis = em.find(Colis.class, colisId);
+        if (colis != null) {
+            return colis.getBordereauExpedition();
+        }
+        return null;
+    }
+
+    // **Méthode ajoutée** : Récupérer colis par ID
+    public Colis getColisById(Long colisId) {
+        return colisRepository.findById(colisId);
+    }
+
+    // **Méthode ajoutée** : Sauvegarder colis (update ou persist)
+    public void saveColis(Colis colis) {
+        colisRepository.update(colis);
     }
 }

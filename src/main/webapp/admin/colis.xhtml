@@ -100,8 +100,10 @@
 
                                     <h:commandButton value="Bordereau"
                                                      styleClass="action-button action-pdf"
-                                                     title="Générer bordereau d'expédition">
-                                    </h:commandButton>
+                                                     title="Générer bordereau d'expédition"
+                                                     action="#{mesColisBean.genererBordereauPDF(colis.id)}"
+                                                     immediate="true" />
+
 
                                     <h:commandButton value="Supprimer"
                                                      action="#{colisBean.supprimerColis}"

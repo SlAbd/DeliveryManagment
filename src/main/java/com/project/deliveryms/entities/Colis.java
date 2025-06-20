@@ -14,7 +14,6 @@ public class Colis {
 
     private String numeroSuivi;
 
-
     private String description;
     private double poids;
 
@@ -36,6 +35,19 @@ public class Colis {
 
     private boolean deleted ;
 
+    // Ajout de la relation OneToOne avec BordereauExpedition
+    @OneToOne(mappedBy = "colis", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private BordereauExpedition bordereauExpedition;
+
+    public BordereauExpedition getBordereauExpedition() {
+        return bordereauExpedition;
+    }
+
+    public void setBordereauExpedition(BordereauExpedition bordereauExpedition) {
+        this.bordereauExpedition = bordereauExpedition;
+    }
+
+    // Getters et setters pour les autres attributs
 
     public boolean getDeleted() {
         return deleted;
@@ -44,10 +56,6 @@ public class Colis {
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
-
-
-
-    // Getters et setters
 
     public Utilisateur getUtilisateur() {
         return utilisateur;
