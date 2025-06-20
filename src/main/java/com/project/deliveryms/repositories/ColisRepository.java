@@ -9,6 +9,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 
 import java.util.List;
+import java.util.Optional;
 
 @Stateless
 public class ColisRepository  {
@@ -61,6 +62,11 @@ public class ColisRepository  {
                 "SELECT c FROM Colis c LEFT JOIN FETCH c.adresseDestinataire LEFT JOIN FETCH c.utilisateur WHERE c.deleted = false",
                 Colis.class
         ).getResultList();
+    }
+
+    public Optional<Colis> findByIdcolis(Long id) {
+        Colis colis = em.find(Colis.class, id);
+        return Optional.ofNullable(colis);
     }
 
 

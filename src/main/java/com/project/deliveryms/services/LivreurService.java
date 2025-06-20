@@ -10,18 +10,21 @@ import com.project.deliveryms.repositories.UserRepository;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import jakarta.mail.MessagingException;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
 @Stateless
-public class LivreurService {
+public class LivreurService implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     @PersistenceContext(unitName = "default")
     private EntityManager entityManager;
 
@@ -189,4 +192,14 @@ public class LivreurService {
             return null;
         }
     }
+
+
+    public Livreur findByEmail(String email) {
+        return livreurRepository.findLivreurByEmail(email);
+    }
+
+
+
+
+
 }

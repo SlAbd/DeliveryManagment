@@ -1,10 +1,14 @@
 package com.project.deliveryms.services;
 
+import com.project.deliveryms.entities.Livreur;
 import com.project.deliveryms.entities.Utilisateur;
+import com.project.deliveryms.repositories.LivreureRepository;
 import com.project.deliveryms.repositories.UtilisateurRepository;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.faces.context.FacesContext;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import org.mindrot.jbcrypt.BCrypt;
 import jakarta.inject.Inject;
@@ -19,6 +23,8 @@ public class UtilisateurService {
 
     @Inject
     private UtilisateurRepository utilisateurRepository;
+    @Inject
+    private LivreureRepository livreurRepository;
 
     // Authentifier un utilisateur
     public String authentifier(String email, String motDePasse) {
@@ -84,5 +90,41 @@ public class UtilisateurService {
             // L'entité sera automatiquement mise à jour grâce à la gestion de l'EntityManager
         }
     }
+
+
+    public Utilisateur getUtilisateurConnecte() {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(false);
+        return (Utilisateur) session.getAttribute("utilisateurConnecte");
+    }
+    public Livreur getLivreurConnecte() {
+        // Récupérer l'objet utilisateur de la session
+        FacesContext context = FacesContext.getCurrentInstance();
+        HttpSession session = (HttpSession) context.getExternalContext().getSession(false);
+
+        if (session == null) {
+            return null; // Si la session n'existe pas, retourner null
+        }
+
+
+        // Vérifier l'utilisateur connecté dans la session
+        Object utilisateurSession = session.getAttribute("utilisateurConnecte");
+
+        if (utilisateurSession instanceof Livreur) {
+            // Si l'objet de session est un Livreur, le retourner directement
+            return (Livreur) utilisateurSession;
+        } else if (utilisateurSession instanceof Utilisateur) {
+            // Si l'objet de session est un Utilisateur, rechercher le livreur par son email
+            Utilisateur utilisateur = (Utilisateur) utilisateurSession;
+            return livreurRepository.findLivreurByEmail(utilisateur.getEmail());
+        }
+        return null; // Si aucune correspondance, retourner null
+    }
+    // Méthode pour récupérer l'utilisateur par email
+    public Utilisateur getUtilisateurByEmail(String email) {
+        return livreurRepository.findByEmail(email);
+    }
+
+
 
 }

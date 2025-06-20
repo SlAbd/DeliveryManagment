@@ -50,4 +50,11 @@ public class Adresse {
         this.pays = pays;
     }
 
+    // Ajout de la méthode toString pour afficher correctement l'adresse
+    @Override
+    public String toString() {
+        return rue + ", " + codePostal + " " + ville + ", " + pays;
+    }
+
+
 }

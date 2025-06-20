@@ -4,6 +4,7 @@ import com.project.deliveryms.enums.StatusColis;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 public class Colis {
@@ -13,10 +14,6 @@ public class Colis {
     private Long id;
 
     private String numeroSuivi;
-
-    @ManyToOne
-    @JoinColumn(name = "utilisateur_id") // ou le nom de votre colonne FK
-    private Utilisateur utilisateur;
 
 
     private String description;
@@ -34,8 +31,31 @@ public class Colis {
     @ManyToOne
     private Livreur livreur;
 
+    @ManyToOne
+    @JoinColumn(name = "utilisateur_id")
+    private Utilisateur utilisateur;
+
+    private boolean deleted ;
+
+
+    public boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+
+
     // Getters et setters
 
+    public Utilisateur getUtilisateur() {
+        return utilisateur;
+    }
+    public void setUtilisateur(Utilisateur utilisateur) {
+        this.utilisateur = utilisateur;
+    }
     public Long getId() {
         return id;
     }
@@ -97,9 +117,10 @@ public class Colis {
         this.poids =poids;
 }
 
-    public void setUtilisateur(Utilisateur utilisateur) {
+    public String getDateEnvoiFormatted() {
+        if (dateEnvoi == null) return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        return dateEnvoi.format(formatter);
     }
 
-    public void setDeleted(boolean b) {
-    }
 }

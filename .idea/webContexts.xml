@@ -11,6 +11,7 @@
         <entry key="file://$PROJECT_DIR$/src/main/webapp/admin/admin-dashbord.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/admin" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/admin/admin-livreurs.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/admin" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/admin/colis.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/admin" />
+        <entry key="file://$PROJECT_DIR$/src/main/webapp/livreur/Livreur.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/livreur" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/pages/LoginRegister.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/pages" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/pages/ajouterColis.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/pages" />
         <entry key="file://$PROJECT_DIR$/src/main/webapp/pages/commandes.xhtml" value="file://$PROJECT_DIR$/src/main/webapp/pages" />

@@ -1,12 +1,16 @@
 package com.project.deliveryms.beans;
 
+import com.project.deliveryms.entities.Livreur;
 import com.project.deliveryms.entities.Utilisateur;
 import com.project.deliveryms.enums.Role;
+import com.project.deliveryms.services.LivreurService;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -25,20 +29,38 @@ public class LoginBean implements Serializable {
 
     @Inject
     private UtilisateurService utilisateurService; // Injection du service
+    @Inject
+    private  LivreurService livreurService;; // Injection du service
+
 
     public String login() {
         String result = utilisateurService.authentifier(email, motDePasse);
 
         if ("Connexion réussie".equals(result)) {
-            utilisateur = utilisateurService.findUserByEmail(email);
+            // Utilisation du service pour trouver l'utilisateur par email
+            Utilisateur utilisateur = utilisateurService.getUtilisateurByEmail(email);
 
             if (utilisateur != null) {
+                // Stocker l'utilisateur dans la session
+                FacesContext facesContext = FacesContext.getCurrentInstance();
+                HttpSession session = (HttpSession) facesContext.getExternalContext().getSession(true);
+
                 Role role = utilisateur.getRole();
+
                 if (role == Role.ADMIN) {
+                    session.setAttribute("utilisateurConnecte", utilisateur); // Admin
                     return "/admin/admin-dashboard.xhtml?faces-redirect=true";
                 } else if (role == Role.LIVREUR) {
+                    // Chercher le livreur associé à l'utilisateur
+                    Livreur livreur = livreurService.findByEmail(utilisateur.getEmail());
+                    if (livreur != null) {
+                        session.setAttribute("utilisateurConnecte", livreur); // Livreur stocké
+                    } else {
+                        session.setAttribute("utilisateurConnecte", utilisateur); // fallback
+                    }
                     return "/livreur/dashboard.xhtml?faces-redirect=true";
                 } else {
+                    session.setAttribute("utilisateurConnecte", utilisateur);
                     return "/pages/dashboard.xhtml?faces-redirect=true";
                 }
             }
@@ -50,6 +72,8 @@ public class LoginBean implements Serializable {
 
         return null;
     }
+
+
 
 
     // Getters et setters
