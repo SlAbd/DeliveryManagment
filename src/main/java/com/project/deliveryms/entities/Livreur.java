@@ -15,6 +15,16 @@ public class Livreur {
     private Double longitude;
     private String disponibiliter;
 
+    private boolean disponible;
+
+    public boolean isDisponible() {
+        return disponible;
+    }
+
+    public void setDisponible(boolean disponible) {
+        this.disponible = disponible;
+    }
+
     @OneToOne
     @JoinColumn(name = "user_id") // clé étrangère dans livreur vers user
     private Utilisateur user;
@@ -32,6 +42,6 @@ public class Livreur {
     public String getDisponibiliter() { return disponibiliter; }
     public void setDisponibiliter(String disponibiliter) { this.disponibiliter = disponibiliter; }
 
-    public Utilisateur getUser() { return user; }
-    public void setUser(Utilisateur user) { this.user = user; }
+    public Utilisateur getUtilisateur() { return user; }
+    public void setUtilisateur(Utilisateur user) { this.user = user; }
 }

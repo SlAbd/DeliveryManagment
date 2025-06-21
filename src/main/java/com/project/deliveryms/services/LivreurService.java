@@ -73,7 +73,7 @@ public class LivreurService {
             livreur.setLatitude(latitude);
             livreur.setLongitude(longitude);
             livreur.setDisponibiliter(disponibilite);
-            livreur.setUser(user);
+            livreur.setUtilisateur(user);
 
             entityManager.persist(livreur);
 
@@ -121,7 +121,7 @@ public class LivreurService {
     public void deleteLivreur(Long id) {
         Livreur livreur = entityManager.find(Livreur.class, id);
         if (livreur != null) {
-            Utilisateur user = livreur.getUser();
+            Utilisateur user = livreur.getUtilisateur();
             entityManager.remove(livreur);
 
             if (user != null) {
@@ -176,10 +176,10 @@ public class LivreurService {
             Livreur livreur = entityManager.find(Livreur.class, id);
 
             // Forcer le chargement des associations pour éviter les erreurs LazyInitialization
-            if (livreur != null && livreur.getUser() != null) {
+            if (livreur != null && livreur.getUtilisateur() != null) {
                 // Accéder aux propriétés pour forcer le chargement
-                livreur.getUser().getNom();
-                livreur.getUser().getEmail();
+                livreur.getUtilisateur().getNom();
+                livreur.getUtilisateur().getEmail();
             }
 
             return livreur;
@@ -189,4 +189,6 @@ public class LivreurService {
             return null;
         }
     }
+
+
 }

@@ -18,17 +18,6 @@
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">Liste des colis livrés</h2>
-                <div class="flex items-center gap-2">
-                    <h:form id="searchForm">
-                        <div class="search-container">
-                            <h:inputText id="searchQuery" value="#{colisLivresBean.searchQuery}" styleClass="form-control" style="width: 250px;" placeholder="Rechercher..." />
-                            <h:commandButton value="Rechercher" action="#{colisLivresBean.rechercher}" styleClass="btn btn-outline btn-sm">
-                                <i class="ri-search-line"></i>
-                                <f:ajax execute="searchQuery" render=":dataTableForm :paginationForm :paginationInfoForm" />
-                            </h:commandButton>
-                        </div>
-                    </h:form>
-                </div>
             </div>
 
             <div class="card-body">
@@ -78,15 +67,6 @@
                                             }" />
                                     </h:commandButton>
 
-                                    <h:commandButton value="Facture"
-                                                     styleClass="action-button action-pdf"
-                                                     title="Générer facture">
-                                    </h:commandButton>
-
-                                    <h:commandButton value="Historique"
-                                                     styleClass="action-button action-info">
-                                        <f:ajax render=":historyForm" listener="#{colisLivresBean.chargerHistorique(colis)}" onevent="function(data) { if (data.status === 'success') { document.getElementById('history-modal-overlay').classList.add('show'); } }" />
-                                    </h:commandButton>
 
                                     <h:commandButton value="Archiver"
                                                      action="#{colisLivresBean.archiverColis}"

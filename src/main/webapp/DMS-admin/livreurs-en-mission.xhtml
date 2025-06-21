@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <!-- Définir le titre de la page -->
+    <ui:define name="page-title">Livreurs en Mission - Admin Dashboard</ui:define>
+
+    <!-- Définir le contenu de la page -->
+    <ui:define name="content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Livreurs en Mission</h1>
+        </div>
+
+        <!-- Messages -->
+        <h:messages id="messages" styleClass="alert alert-info" globalOnly="true" />
+
+        <!-- Livreurs en Mission List -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Liste des livreurs en mission</h2>
+            </div>
+
+            <div class="card-body">
+                <div class="table-container">
+                    <!-- Tableau des livreurs en mission -->
+                    <h:form id="dataTableForm">
+                        <h:dataTable value="#{livreurBean.livreursEnMission}" var="livreur"
+                                     styleClass="data-table"
+                                     headerClass="table-header"
+                                     rowClasses="table-row">
+
+                            <h:column>
+                                <f:facet name="header">ID</f:facet>
+                                <h:outputText value="#{livreur.id}" />
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Nom complet</f:facet>
+                                <div class="flex items-center">
+                                    <div class="status-indicator status-busy"></div>
+                                    <h:outputText value="#{livreur.utilisateur.nom} #{livreur.utilisateur.prenom}" />
+                                </div>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Email</f:facet>
+                                <div class="flex items-center">
+                                    <i class="ri-mail-line mr-2 text-gray-500"></i>
+                                    <h:outputText value="#{livreur.utilisateur.email}" />
+                                </div>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Statut</f:facet>
+                                <span class="status-badge status-transit">
+                <i class="ri-truck-fill"></i>
+                En mission
+            </span>
+                            </h:column>
+                        </h:dataTable>
+
+                        <!-- Message s’il n’y a aucun livreur en mission -->
+                        <h:panelGroup rendered="#{livreurBean.nombreLivreursEnMission == 0}">
+                            <div class="alert alert-warning mt-4">
+                                Aucun livreur n’est actuellement en mission.
+                            </div>
+                        </h:panelGroup>
+                    </h:form>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- CSS supplémentaire -->
+        <style>
+            .status-indicator {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                margin-right: 8px;
+            }
+
+            .status-busy {
+                background-color: #f59e0b;
+            }
+
+            .mission-info {
+                line-height: 1.4;
+            }
+
+            .mission-reference {
+                font-weight: 600;
+                color: #1f2937;
+            }
+
+            .mission-destination {
+                color: #6b7280;
+            }
+
+            .progress-container {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .progress-bar {
+                flex: 1;
+                height: 8px;
+                background-color: #e5e7eb;
+                border-radius: 4px;
+                overflow: hidden;
+            }
+
+            .progress-fill {
+                height: 100%;
+                background-color: #3b82f6;
+                transition: width 0.3s ease;
+            }
+
+            .progress-text {
+                font-size: 12px;
+                color: #6b7280;
+                min-width: 35px;
+            }
+
+            .progress-container-large {
+                margin-bottom: 10px;
+            }
+
+            .progress-bar-large {
+                height: 12px;
+                background-color: #e5e7eb;
+                border-radius: 6px;
+                overflow: hidden;
+                margin-bottom: 5px;
+            }
+
+            .progress-fill-large {
+                height: 100%;
+                background-color: #10b981;
+                transition: width 0.3s ease;
+            }
+
+            .progress-text-large {
+                font-size: 14px;
+                color: #374151;
+                font-weight: 500;
+            }
+
+            .action-warning {
+                background-color: #f59e0b;
+                color: white;
+            }
+        </style>
+    </ui:define>
+
+</ui:composition>
+</html>

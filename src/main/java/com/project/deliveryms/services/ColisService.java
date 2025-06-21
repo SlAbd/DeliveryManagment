@@ -1,9 +1,6 @@
 package com.project.deliveryms.services;
 
-import com.project.deliveryms.entities.Adresse;
-import com.project.deliveryms.entities.Colis;
-import com.project.deliveryms.entities.Livreur;
-import com.project.deliveryms.entities.Utilisateur;
+import com.project.deliveryms.entities.*;
 import com.project.deliveryms.enums.StatusColis;
 import com.project.deliveryms.repositories.ColisRepository;
 import com.project.deliveryms.repositories.LivreureRepository;
@@ -56,8 +53,8 @@ public class ColisService {
     }
 
 
-    @Inject
-    private AdresseService adresseService;
+    /*@Inject
+    private AdresseService adresseService;*/
 
     @Transactional
     public void affecterColisALivreur(Long idColis, Long idLivreur) {
@@ -131,9 +128,9 @@ public class ColisService {
         return colis;
     }
 
-    public Colis getColisByNumeroSuivi(String numeroSuivi) {
+    /*public Colis getColisByNumeroSuivi(String numeroSuivi) {
         return colisRepository.findByNumeroSuivi(numeroSuivi);
-    }
+    }*/
 
     public List<Colis> getAllColisWithDetails() {
         return colisRepository.findAllWithDetails();
@@ -259,5 +256,13 @@ public class ColisService {
         TypedQuery<Long> query = em.createQuery("SELECT COUNT(c) FROM Colis c WHERE c.utilisateur.id = :userId AND c.deleted = false", Long.class);
         query.setParameter("userId", userId);
         return query.getSingleResult().intValue();
+    }
+
+    public BordereauExpedition getBordereauByColisId(Long colisId) {
+        Colis colis = em.find(Colis.class, colisId);
+        if (colis != null) {
+            return colis.getBordereauExpedition();
+        }
+        return null;
     }
 }

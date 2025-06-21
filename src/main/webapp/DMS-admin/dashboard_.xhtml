@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <!-- Définir le titre de la page -->
+    <ui:define name="page-title">Tableau de bord Admin</ui:define>
+
+    <!-- Définir le contenu de la page -->
+    <ui:define name="content">
+        <div class="content">
+            <h:form id="dashboardForm">
+
+                <!-- En-tête du dashboard -->
+                <div class="dashboard-header">
+                    <div class="welcome-section">
+                        <h1 class="dashboard-title">
+                            👋 Bonjour,!
+                        </h1>
+                        <p class="dashboard-subtitle">
+                            Voici un aperçu de votre activité aujourd'hui
+                        </p>
+                    </div>
+                    <div class="dashboard-actions">
+                        <h:link outcome="colis" styleClass="btn btn-primary btn-modern">
+                            <i class="ri-add-line"></i> Nouveau Colis
+                        </h:link>
+
+                        <button type="button" class="btn btn-ghost btn-modern" onclick="refreshDashboard()">
+                            <i class="ri-refresh-line"></i> Actualiser
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cartes statistiques dynamiques -->
+                <div class="dashboard-cards-modern">
+                    <!-- Total Colis -->
+                    <div class="stat-card stat-card-primary">
+                        <div class="stat-card-content">
+                            <div class="stat-icon-wrapper">
+                                <div class="stat-icon">
+                                    <i class="ri-box-3-line"></i>
+                                </div>
+                            </div>
+                            <div class="stat-details">
+                                <div class="stat-value">#{adminBean.totalColis}</div>
+                                <div class="stat-title">Total Colis</div>
+                                <div class="stat-description">Tous les colis enregistrés</div>
+                            </div>
+                        </div>
+                        <div class="stat-trend">
+                            <span class="trend-positive">
+                                <i class="ri-arrow-up-line"></i> #{adminBean.totalColisPercentage}
+                            </span>
+                            <span class="trend-label">depuis le mois dernier</span>
+                        </div>
+                    </div>
+
+                    <!-- Colis en attente -->
+                    <div class="stat-card stat-card-warning">
+                        <div class="stat-card-content">
+                            <div class="stat-icon-wrapper">
+                                <div class="stat-icon">
+                                    <i class="ri-time-line"></i>
+                                </div>
+                            </div>
+                            <div class="stat-details">
+                                <div class="stat-value">#{adminBean.colisEnAttente}</div>
+                                <div class="stat-title">En Attente</div>
+                                <div class="stat-description">Colis à traiter</div>
+                            </div>
+                        </div>
+                        <div class="stat-trend">
+                            <span class="trend-warning">
+                                <i class="ri-arrow-up-line"></i> #{adminBean.colisEnAttentePercentage}
+                            </span>
+                            <span class="trend-label">depuis la semaine dernière</span>
+                        </div>
+                    </div>
+
+                    <!-- Colis en transit -->
+                    <div class="stat-card stat-card-info">
+                        <div class="stat-card-content">
+                            <div class="stat-icon-wrapper">
+                                <div class="stat-icon">
+                                    <i class="ri-truck-line"></i>
+                                </div>
+                            </div>
+                            <div class="stat-details">
+                                <div class="stat-value">#{adminBean.colisEnTransit}</div>
+                                <div class="stat-title">En Transit</div>
+                                <div class="stat-description">Colis en cours de livraison</div>
+                            </div>
+                        </div>
+                        <div class="stat-trend">
+                            <span class="trend-positive">
+                                <i class="ri-arrow-up-line"></i> #{adminBean.colisEnTransitPercentage}
+                            </span>
+                            <span class="trend-label">depuis la semaine dernière</span>
+                        </div>
+                    </div>
+
+                    <!-- Livreurs actifs -->
+                    <div class="stat-card stat-card-success">
+                        <div class="stat-card-content">
+                            <div class="stat-icon-wrapper">
+                                <div class="stat-icon">
+                                    <i class="ri-user-star-line"></i>
+                                </div>
+                            </div>
+                            <div class="stat-details">
+                                <div class="stat-value">#{adminBean.livreursActifs}</div>
+                                <div class="stat-title">Livreurs Actifs</div>
+                                <div class="stat-description">Équipe de livraison</div>
+                            </div>
+                        </div>
+                        <div class="stat-trend">
+                            <span class="trend-positive">
+                                <i class="ri-add-line"></i> #{adminBean.livreursActifsChange}
+                            </span>
+                            <span class="trend-label">nouveaux ce mois</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphique de progression -->
+                <div class="progress-section">
+                    <div class="card-modern">
+                        <div class="card-header-modern">
+                            <div class="card-title-section">
+                                <h2 class="card-title">📊 Répartition des Colis</h2>
+                                <span class="card-subtitle">État actuel des livraisons</span>
+                            </div>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-item">
+                                <div class="progress-info">
+                                    <span class="progress-label">En Attente</span>
+                                    <span class="progress-value">#{adminBean.colisEnAttente}</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill progress-warning"
+                                         style="width: #{(adminBean.colisEnAttente * 100) / adminBean.totalColis}%"></div>
+                                </div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-info">
+                                    <span class="progress-label">En Transit</span>
+                                    <span class="progress-value">#{adminBean.colisEnTransit}</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill progress-info"
+                                         style="width: #{(adminBean.colisEnTransit * 100) / adminBean.totalColis}%"></div>
+                                </div>
+                            </div>
+                            <div class="progress-item">
+                                <div class="progress-info">
+                                    <span class="progress-label">Livrés</span>
+                                    <span class="progress-value">#{adminBean.totalColis - adminBean.colisEnAttente - adminBean.colisEnTransit}</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill progress-success"
+                                         style="width: #{((adminBean.totalColis - adminBean.colisEnAttente - adminBean.colisEnTransit) * 100) / adminBean.totalColis}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tableau des livraisons récentes -->
+                <div class="card-modern">
+                    <div class="card-header-modern">
+                        <div class="card-title-section">
+                            <h2 class="card-title">🚚 Livraisons Récentes</h2>
+                            <span class="card-subtitle">#{adminBean.recentDeliveries.size()} dernières livraisons</span>
+                        </div>
+                        <div class="card-actions">
+                            <button type="button" class="btn btn-ghost btn-sm">
+                                <i class="ri-filter-line"></i> Filtrer
+                            </button>
+                            <button type="button" class="btn btn-ghost btn-sm">
+                                <i class="ri-external-link-line"></i> Voir tout
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-container-modern">
+                        <h:dataTable id="recentDeliveriesTable"
+                                     value="#{adminBean.recentDeliveries}"
+                                     var="delivery"
+                                     styleClass="data-table-modern"
+                                     width="100%"
+                                     rendered="#{not empty adminBean.recentDeliveries}">
+
+                            <h:column>
+                                <f:facet name="header">
+                                    <div class="table-header">
+                                        <i class="ri-hashtag"></i> ID
+                                    </div>
+                                </f:facet>
+                                <div class="delivery-id">
+                                    ##{delivery.id}
+                                </div>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">
+                                    <div class="table-header">
+                                        <i class="ri-user-line"></i> Client
+                                    </div>
+                                </f:facet>
+                                <div class="client-info-compact">
+                                    <div class="client-avatar-small">
+                                        #{delivery.utilisateur.nom.substring(0,1)}#{delivery.utilisateur.prenom.substring(0,1)}
+                                    </div>
+                                    <div class="client-details-compact">
+                                        <div class="client-name-compact">#{delivery.utilisateur.prenom} #{delivery.utilisateur.nom}</div>
+                                        <div class="client-email-compact">#{delivery.utilisateur.email}</div>
+                                    </div>
+                                </div>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">
+                                    <div class="table-header">
+                                        <i class="ri-flag-line"></i> Statut
+                                    </div>
+                                </f:facet>
+                                <div class="status-container">
+                                    <h:outputText value="✅ Livré" styleClass="status-badge status-delivered"
+                                                  rendered="#{delivery.status == 'LIVRE'}" />
+                                    <h:outputText value="🚚 En transit" styleClass="status-badge status-transit"
+                                                  rendered="#{delivery.status == 'EN_TRANSIT'}" />
+                                    <h:outputText value="⏳ En attente" styleClass="status-badge status-pending"
+                                                  rendered="#{delivery.status == 'EN_ATTENTE'}" />
+                                </div>
+                            </h:column>
+                        </h:dataTable>
+                    </div>
+                </div>
+
+                <!-- Actions rapides -->
+                <div class="quick-actions-section">
+                    <div class="card-modern">
+                        <div class="card-header-modern">
+                            <div class="card-title-section">
+                                <h2 class="card-title">⚡ Actions Rapides</h2>
+                                <span class="card-subtitle">Raccourcis pour les tâches courantes</span>
+                            </div>
+                        </div>
+                        <div class="quick-actions-grid">
+                            <button type="button" class="quick-action-card">
+                                <div class="quick-action-icon">
+                                    <i class="ri-add-box-line"></i>
+                                </div>
+                                <h:link outcome="colis" styleClass="quick-action">
+                                    <div class="quick-action-content">
+                                        <h3 class="quick-action-title">Nouveau Colis</h3>
+                                        <p class="quick-action-description">Créer un nouveau colis</p>
+                                    </div>
+                                </h:link>
+
+                            </button>
+
+                            <h:link outcome="livreurs" styleClass="quick-action-card">
+                                <div class="quick-action-icon">
+                                    <i class="ri-user-add-line"></i>
+                                </div>
+                                <div class="quick-action-content">
+                                    <h3 class="quick-action-title">Nouveau Livreur</h3>
+                                    <p class="quick-action-description">Ajouter un livreur</p>
+                                </div>
+                            </h:link>
+
+
+                            <h:link outcome="livreurs" styleClass="quick-action-card">
+                                <div class="quick-action-icon">
+                                    <i class="ri-truck-line"></i>
+                                </div>
+                                <div class="quick-action-content">
+                                    <h3 class="quick-action-title">Affecter Colis</h3>
+                                    <p class="quick-action-description">Assigner à un livreur</p>
+                                </div>
+                            </h:link>
+
+                        </div>
+                    </div>
+                </div>
+
+            </h:form>
+        </div>
+
+        <!-- CSS amélioré -->
+        <style>
+            /* En-tête du dashboard */
+            .dashboard-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 2rem;
+                padding: 1.5rem 0;
+            }
+
+            .welcome-section .dashboard-title {
+                font-size: 2.25rem;
+                font-weight: 700;
+                color: #1f2937;
+                margin: 0 0 0.5rem 0;
+                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .dashboard-subtitle {
+                color: #6b7280;
+                font-size: 1.125rem;
+                margin: 0;
+            }
+
+            .dashboard-actions {
+                display: flex;
+                gap: 0.75rem;
+            }
+
+            /* Boutons modernes */
+            .btn-modern {
+                padding: 0.75rem 1.5rem;
+                border-radius: 0.5rem;
+                font-weight: 500;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                transition: all 0.2s ease;
+                border: none;
+                cursor: pointer;
+                font-size: 0.875rem;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                color: white;
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            }
+
+            .btn-outline {
+                background: white;
+                color: #374151;
+                border: 1px solid #d1d5db;
+            }
+
+            .btn-outline:hover {
+                background: #f9fafb;
+                border-color: #9ca3af;
+            }
+
+            .btn-ghost {
+                background: transparent;
+                color: #6b7280;
+                border: 1px solid #e5e7eb;
+            }
+
+            .btn-ghost:hover {
+                background: #f9fafb;
+                color: #374151;
+            }
+
+            /* Cartes statistiques */
+            .dashboard-cards-modern {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+            }
+
+            .stat-card {
+                background: white;
+                border-radius: 1rem;
+                padding: 1.5rem;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .stat-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            }
+
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, var(--card-color), var(--card-color-light));
+            }
+
+            .stat-card-primary {
+                --card-color: #3b82f6;
+                --card-color-light: #60a5fa;
+            }
+
+            .stat-card-success {
+                --card-color: #10b981;
+                --card-color-light: #34d399;
+            }
+
+            .stat-card-warning {
+                --card-color: #f59e0b;
+                --card-color-light: #fbbf24;
+            }
+
+            .stat-card-info {
+                --card-color: #8b5cf6;
+                --card-color-light: #a78bfa;
+            }
+
+            .stat-card-content {
+                display: flex;
+                align-items: flex-start;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .stat-icon-wrapper {
+                flex-shrink: 0;
+            }
+
+            .stat-icon {
+                width: 3rem;
+                height: 3rem;
+                border-radius: 0.75rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                color: var(--card-color);
+                background: rgba(var(--card-color-rgb), 0.1);
+            }
+
+            .stat-card-primary .stat-icon { background: rgba(59, 130, 246, 0.1); }
+            .stat-card-success .stat-icon { background: rgba(16, 185, 129, 0.1); }
+            .stat-card-warning .stat-icon { background: rgba(245, 158, 11, 0.1); }
+            .stat-card-info .stat-icon { background: rgba(139, 92, 246, 0.1); }
+
+            .stat-details {
+                flex: 1;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+                font-weight: 700;
+                color: #1f2937;
+                line-height: 1;
+                margin-bottom: 0.25rem;
+            }
+
+            .stat-title {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #374151;
+                margin-bottom: 0.25rem;
+            }
+
+            .stat-description {
+                font-size: 0.75rem;
+                color: #6b7280;
+            }
+
+            .stat-trend {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .trend-positive {
+                color: #10b981;
+                font-size: 0.75rem;
+                font-weight: 500;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+
+            .trend-warning {
+                color: #f59e0b;
+                font-size: 0.75rem;
+                font-weight: 500;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+
+            .trend-label {
+                font-size: 0.75rem;
+                color: #9ca3af;
+            }
+
+            /* Section de progression */
+            .progress-section {
+                margin-bottom: 2rem;
+            }
+
+            .progress-container {
+                padding: 1.5rem;
+            }
+
+            .progress-item {
+                margin-bottom: 1.5rem;
+            }
+
+            .progress-info {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 0.5rem;
+            }
+
+            .progress-label {
+                font-weight: 500;
+                color: #374151;
+            }
+
+            .progress-value {
+                font-weight: 600;
+                color: #1f2937;
+            }
+
+            .progress-bar {
+                height: 0.5rem;
+                background: #f3f4f6;
+                border-radius: 0.25rem;
+                overflow: hidden;
+            }
+
+            .progress-fill {
+                height: 100%;
+                border-radius: 0.25rem;
+                transition: width 0.5s ease;
+            }
+
+            .progress-warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+            .progress-info { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+            .progress-success { background: linear-gradient(90deg, #10b981, #34d399); }
+
+            /* Cartes modernes */
+            .card-modern {
+                background: white;
+                border-radius: 1rem;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                margin-bottom: 2rem;
+                overflow: hidden;
+            }
+
+            .card-header-modern {
+                padding: 1.5rem;
+                border-bottom: 1px solid #f3f4f6;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .card-title {
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: #1f2937;
+                margin: 0;
+            }
+
+            .card-subtitle {
+                font-size: 0.875rem;
+                color: #6b7280;
+                margin-top: 0.25rem;
+            }
+
+            .card-actions {
+                display: flex;
+                gap: 0.5rem;
+            }
+
+            .btn-sm {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.875rem;
+            }
+
+            /* Tableau moderne */
+            .table-container-modern {
+                overflow-x: auto;
+            }
+
+            .data-table-modern {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .data-table-modern th {
+                background: #f9fafb;
+                padding: 1rem;
+                text-align: left;
+                font-weight: 600;
+                color: #374151;
+                border-bottom: 1px solid #e5e7eb;
+            }
+
+            .data-table-modern td {
+                padding: 1rem;
+                border-bottom: 1px solid #f3f4f6;
+                vertical-align: middle;
+            }
+
+            .data-table-modern tr:hover {
+                background: #f9fafb;
+            }
+
+            .table-header {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.875rem;
+            }
+
+            /* Informations client compactes */
+            .client-info-compact {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .client-avatar-small {
+                width: 2rem;
+                height: 2rem;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+                font-size: 0.75rem;
+            }
+
+            .client-name-compact {
+                font-weight: 600;
+                color: #1f2937;
+                font-size: 0.875rem;
+            }
+
+            .client-email-compact {
+                font-size: 0.75rem;
+                color: #6b7280;
+            }
+
+            .delivery-id {
+                font-family: 'Courier New', monospace;
+                font-weight: 600;
+                color: #374151;
+            }
+
+            .livreur-info {
+                color: #374151;
+                font-size: 0.875rem;
+            }
+
+            .no-livreur {
+                color: #9ca3af;
+                font-style: italic;
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+
+            /* Badges de statut */
+            .status-badge {
+                padding: 0.25rem 0.75rem;
+                border-radius: 9999px;
+                font-size: 0.75rem;
+                font-weight: 500;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+
+            .status-delivered {
+                background: #d1fae5;
+                color: #065f46;
+            }
+
+            .status-transit {
+                background: #dbeafe;
+                color: #1e40af;
+            }
+
+            .status-pending {
+                background: #fef3c7;
+                color: #92400e;
+            }
+
+            .status-preparation {
+                background: #f3e8ff;
+                color: #7c3aed;
+            }
+
+            .date-info-compact {
+                color: #6b7280;
+                font-size: 0.875rem;
+            }
+
+            /* Boutons d'action compacts */
+            .action-buttons-compact {
+                display: flex;
+                gap: 0.5rem;
+            }
+
+            .btn-action {
+                width: 2rem;
+                height: 2rem;
+                border-radius: 0.375rem;
+                border: none;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+                font-size: 0.875rem;
+            }
+
+            .btn-action-primary {
+                background: #dbeafe;
+                color: #1e40af;
+            }
+
+            .btn-action-primary:hover {
+                background: #bfdbfe;
+            }
+
+            .btn-action-warning {
+                background: #fef3c7;
+                color: #92400e;
+            }
+
+            .btn-action-warning:hover {
+                background: #fde68a;
+            }
+
+            .btn-action-info {
+                background: #f0f9ff;
+                color: #0369a1;
+            }
+
+            .btn-action-info:hover {
+                background: #e0f2fe;
+            }
+
+            /* État vide */
+            .empty-state {
+                text-align: center;
+                padding: 3rem 1.5rem;
+            }
+
+            .empty-icon {
+                font-size: 4rem;
+                color: #d1d5db;
+                margin-bottom: 1rem;
+            }
+
+            .empty-title {
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: #374151;
+                margin-bottom: 0.5rem;
+            }
+
+            .empty-description {
+                color: #6b7280;
+                margin-bottom: 1.5rem;
+            }
+
+            /* Actions rapides */
+            .quick-actions-section {
+                margin-bottom: 2rem;
+            }
+
+            .quick-actions-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+
+            .quick-action-card {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 1.5rem;
+                background: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.75rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                text-align: left;
+            }
+
+            .quick-action-card:hover {
+                border-color: #3b82f6;
+                box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+                transform: translateY(-1px);
+            }
+
+            .quick-action-icon {
+                width: 3rem;
+                height: 3rem;
+                border-radius: 0.75rem;
+                background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                flex-shrink: 0;
+            }
+
+            .quick-action-title {
+                font-size: 1rem;
+                font-weight: 600;
+                color: #1f2937;
+                margin: 0 0 0.25rem 0;
+            }
+
+            .quick-action-description {
+                font-size: 0.875rem;
+                color: #6b7280;
+                margin: 0;
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .dashboard-header {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+
+                .dashboard-actions {
+                    width: 100%;
+                    justify-content: stretch;
+                }
+
+                .dashboard-actions .btn-modern {
+                    flex: 1;
+                    justify-content: center;
+                }
+
+                .dashboard-cards-modern {
+                    grid-template-columns: 1fr;
+                }
+
+                .card-header-modern {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 1rem;
+                }
+
+                .quick-actions-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .client-info-compact {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 0.5rem;
+                }
+
+                .action-buttons-compact {
+                    flex-direction: column;
+                }
+            }
+        </style>
+
+        <!-- JavaScript pour interactions -->
+        <h:outputScript>
+            function refreshDashboard() {
+            // Recharger la page ou faire un appel AJAX
+            location.reload();
+            }
+
+            function editDelivery(id) {
+            // Rediriger vers la page d'édition
+            window.location.href = '/admin/edit-delivery.xhtml?id=' + id;
+            }
+
+            function trackDelivery(trackingNumber) {
+            // Ouvrir la page de suivi
+            window.open('/track/' + trackingNumber, '_blank');
+            }
+
+            // Animation des cartes au chargement
+            document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.stat-card');
+            cards.forEach((card, index) => {
+            setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.5s ease';
+
+            setTimeout(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+            }, 100);
+            }, index * 100);
+            });
+            });
+        </h:outputScript>
+    </ui:define>
+
+</ui:composition>
+</html>

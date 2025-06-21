@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Stateless
-public class LivreureRepository {
+public class LivreurRepository {
 
     @PersistenceContext(unitName = "default")
     private EntityManager entityManager;
 
-    private static final Logger LOG = Logger.getLogger(LivreureRepository.class.getName());
+    private static final Logger LOG = Logger.getLogger(LivreurRepository.class.getName());
 
     // Insérer un livreur
     public Livreur save(Livreur livreur) {
@@ -42,7 +42,7 @@ public class LivreureRepository {
         }
 
         // Mettre à jour les données du livreur
-        existingLivreur.setDisponibiliter(livreur.getDisponibiliter());
+        existingLivreur.setDisponible(livreur.isDisponible());
         if (livreur.getLatitude() != null) {
             existingLivreur.setLatitude(livreur.getLatitude());
         }
@@ -102,7 +102,7 @@ public class LivreureRepository {
         TypedQuery<Livreur> query = entityManager.createQuery(
                 "SELECT DISTINCT l FROM Livreur l " +
                         "LEFT JOIN Colis c ON c.livreur = l " +
-                        "WHERE l.disponibiliter = 'oui'",
+                        "WHERE l.disponible = false",
                 Livreur.class
         );
         return query.getResultList();

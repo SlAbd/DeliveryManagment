@@ -92,16 +92,6 @@
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title">Liste des colis</h2>
-                <div class="flex items-center gap-2">
-                    <h:form id="searchForm">
-                        <div class="search-container">
-                            <h:inputText id="searchQuery" value="#{colisBean.searchQuery}" styleClass="form-control" style="width: 250px;" placeholder="Rechercher..." />
-                            <h:commandButton value="Rechercher" action="#{colisBean.rechercher}" styleClass="btn btn-outline btn-sm">
-                                <f:ajax execute="searchQuery" render=":dataTableForm :paginationForm :paginationInfoForm" />
-                            </h:commandButton>
-                        </div>
-                    </h:form>
-                </div>
             </div>
 
             <div class="card-body">
@@ -168,8 +158,9 @@
 
                                     <h:commandButton value="Bordereau"
                                                      styleClass="action-button action-pdf"
-                                                     title="Générer bordereau d'expédition">
-                                    </h:commandButton>
+                                                     title="Générer bordereau d'expédition"
+                                                     action="#{mesColisBean.genererBordereauPDF(colis.id)}"
+                                                     immediate="true" />
 
                                     <h:commandButton value="Supprimer"
                                                      action="#{colisBean.supprimerColis}"

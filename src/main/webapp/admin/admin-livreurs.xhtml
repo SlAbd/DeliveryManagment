@@ -499,6 +499,111 @@
             }
         }
     </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+
+            if (sidebarToggle &amp;&amp; sidebar &amp;&amp; mainContent) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('collapsed');
+                    mainContent.classList.toggle('expanded');
+                });
+            }
+
+            // Mobile sidebar toggle
+            const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+            if (mobileSidebarToggle &amp;&amp; sidebar &amp;&amp; sidebarOverlay) {
+                mobileSidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('mobile-open');
+                    sidebarOverlay.classList.toggle('active');
+                });
+
+                sidebarOverlay.addEventListener('click', function() {
+                    sidebar.classList.remove('mobile-open');
+                    sidebarOverlay.classList.remove('active');
+                });
+            }
+
+            // User dropdown toggle
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userDropdown = document.getElementById('user-dropdown');
+
+            if (userMenuButton &amp;&amp; userDropdown) {
+                userMenuButton.addEventListener('click', function(event) {
+                    // Prevent event propagation
+                    event.stopPropagation();
+
+                    // Toggle dropdown visibility
+                    userDropdown.classList.toggle('show');
+                });
+
+                // Close dropdown when clicking elsewhere
+                document.addEventListener('click', function(event) {
+                    if (!userMenuButton.contains(event.target) &amp;&amp; !userDropdown.contains(event.target)) {
+                        userDropdown.classList.remove('show');
+                    }
+                });
+            }
+
+            console.log('Script initialized');
+            console.log('User menu button:', userMenuButton);
+            console.log('User dropdown:', userDropdown);
+        });
+        // Fonction pour ouvrir le modal après réception des données AJAX
+        function handleModalOpen(data) {
+            if (data.status === "success") {
+                console.log("Requête AJAX envoyée avec succès");
+            } else if (data.status === "complete") {
+                console.log("Traitement AJAX terminé, ouverture du modal...");
+                // Utilisez un délai pour s'assurer que le DOM a été mis à jour
+                setTimeout(function() {
+                    ouvrirModalModification();
+                }, 300);
+            }
+        }
+
+        // Fonction pour gérer la mise à jour
+        function handleUpdate(data) {
+            if (data.status === "complete") {
+                console.log("Mise à jour terminée");
+            }
+        }
+
+        // Fonction pour ouvrir le modal et s'assurer que l'AJAX est completé
+        function ouvrirModalModification() {
+            document.getElementById('modalModification').style.display = 'block';
+            console.log("Modal ouvert");
+
+            // Log des données pour débogage
+            try {
+                console.log("ID: " + document.querySelector("#formModification\\:idLivreur").value);
+                console.log("Nom: " + document.querySelector("#formModification\\:nomLivreur").value);
+                console.log("Prénom: " + document.querySelector("#formModification\\:prenomLivreur").value);
+                console.log("Email: " + document.querySelector("#formModification\\:emailLivreur").value);
+                console.log("Disponibilité: " + document.querySelector("#formModification\\:disponibiliteLivreur").value);
+            } catch(e) {
+                console.error("Erreur lors du log des données:", e);
+            }
+        }
+
+        // Fonction pour fermer le modal
+        function fermerModal() {
+            document.getElementById('modalModification').style.display = 'none';
+        }
+
+        // Fermer le modal en cliquant à l'extérieur
+        window.onclick = function(event) {
+            var modal = document.getElementById('modalModification');
+            if (event.target === modal) {
+                fermerModal();
+            }
+        }
+    </script>
 
 </h:head>
 
@@ -811,115 +916,5 @@
             </h:form>
         </div>
     </div>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Sidebar toggle
-            const sidebarToggle = document.getElementById('sidebar-toggle');
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('main-content');
-
-            if (sidebarToggle &amp;&amp; sidebar &amp;&amp; mainContent) {
-                sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('collapsed');
-                    mainContent.classList.toggle('expanded');
-                });
-            }
-
-            // Mobile sidebar toggle
-            const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
-            const sidebarOverlay = document.getElementById('sidebar-overlay');
-
-            if (mobileSidebarToggle &amp;&amp; sidebar &amp;&amp; sidebarOverlay) {
-                mobileSidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('mobile-open');
-                    sidebarOverlay.classList.toggle('active');
-                });
-
-                sidebarOverlay.addEventListener('click', function() {
-                    sidebar.classList.remove('mobile-open');
-                    sidebarOverlay.classList.remove('active');
-                });
-            }
-
-            // User dropdown toggle
-            const userMenuButton = document.getElementById('user-menu-button');
-            const userDropdown = document.getElementById('user-dropdown');
-
-            if (userMenuButton &amp;&amp; userDropdown) {
-                userMenuButton.addEventListener('click', function(event) {
-                    // Prevent event propagation
-                    event.stopPropagation();
-
-                    // Toggle dropdown visibility
-                    userDropdown.classList.toggle('show');
-                });
-
-                // Close dropdown when clicking elsewhere
-                document.addEventListener('click', function(event) {
-                    if (!userMenuButton.contains(event.target) &amp;&amp; !userDropdown.contains(event.target)) {
-                        userDropdown.classList.remove('show');
-                    }
-                });
-            }
-
-            console.log('Script initialized');
-            console.log('User menu button:', userMenuButton);
-            console.log('User dropdown:', userDropdown);
-        });
-
-        // Fonction pour ouvrir le modal après réception des données AJAX
-        function handleModalOpen(data) {
-            if (data.status === "success") {
-                console.log("Requête AJAX envoyée avec succès");
-            } else if (data.status === "complete") {
-                console.log("Traitement AJAX terminé, ouverture du modal...");
-                // Utilisez un délai pour s'assurer que le DOM a été mis à jour
-                setTimeout(function() {
-                    ouvrirModalModification();
-                }, 300);
-            }
-        }
-
-        // Fonction pour gérer la mise à jour
-        function handleUpdate(data) {
-            if (data.status === "complete") {
-                console.log("Mise à jour terminée");
-            }
-        }
-
-        // Fonction pour ouvrir le modal et s'assurer que l'AJAX est completé
-        function ouvrirModalModification() {
-            document.getElementById('modalModification').style.display = 'block';
-            console.log("Modal ouvert");
-
-            // Log des données pour débogage
-            try {
-                console.log("ID: " + document.querySelector("#formModification\\:idLivreur").value);
-                console.log("Nom: " + document.querySelector("#formModification\\:nomLivreur").value);
-                console.log("Prénom: " + document.querySelector("#formModification\\:prenomLivreur").value);
-                console.log("Email: " + document.querySelector("#formModification\\:emailLivreur").value);
-                console.log("Disponibilité: " + document.querySelector("#formModification\\:disponibiliteLivreur").value);
-            } catch(e) {
-                console.error("Erreur lors du log des données:", e);
-            }
-        }
-
-        // Fonction pour fermer le modal
-        function fermerModal() {
-            document.getElementById('modalModification').style.display = 'none';
-        }
-
-        // Fermer le modal en cliquant à l'extérieur
-        window.onclick = function(event) {
-            var modal = document.getElementById('modalModification');
-            if (event.target === modal) {
-                fermerModal();
-            }
-        }
-    </script>
 </h:body>
 </html>

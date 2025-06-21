@@ -122,7 +122,7 @@ public class ColisEnTransitBean implements Serializable {
     public String marquerCommeLivre() {
         try {
             // Récupérer le colis
-            Colis colis = colisService.getColisByNumeroSuivi(numeroSuivi);
+            Colis colis = colisService.findById(colisId);
             if (colis == null) {
                 throw new EntityNotFoundException("Colis non trouvé");
             }

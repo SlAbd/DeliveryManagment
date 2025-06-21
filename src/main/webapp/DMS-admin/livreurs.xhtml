@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<ui:composition template="/WEB-INF/templates/template.xhtml">
+
+    <!-- Définir le titre de la page -->
+    <ui:define name="page-title">Gestion des Livreurs - Admin Dashboard</ui:define>
+
+    <!-- Définir le contenu de la page -->
+    <ui:define name="content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Tous les livreurs</h1>
+            <button type="button" class="btn btn-primary" id="open-add-modal-btn">
+                <i class="ri-add-line"></i> Ajouter un livreur
+            </button>
+        </div>
+
+        <!-- Messages -->
+        <h:messages id="messages" styleClass="alert alert-info" globalOnly="true" />
+
+        <!-- STATISTIQUES EN HAUT -->
+        <div class="stats-container-top">
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-available">
+                    <i class="ri-user-check-line"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">#{livreurBean.nombreLivreursDisponibles}</div>
+                    <div class="stat-label">Livreurs disponibles</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-packages">
+                    <i class="ri-package-2-line"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">#{livreurColisBean.nombreColisNonAffectes}</div>
+                    <div class="stat-label">Colis en attente</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-mission">
+                    <i class="ri-truck-line"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">#{livreurBean.nombreLivreursEnMission}</div>
+                    <div class="stat-label">Livreurs en mission</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon stat-icon-total">
+                    <i class="ri-team-line"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">#{livreurBean.livreurs.size()}</div>
+                    <div class="stat-label">Total livreurs</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Livreurs List -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Liste des livreurs</h2>
+            </div>
+
+            <div class="card-body">
+                <div class="table-container">
+                    <!-- Tableau des livreurs -->
+                    <h:form id="dataTableForm">
+                        <h:dataTable value="#{livreurBean.livreurs}" var="livreur"
+                                     styleClass="data-table"
+                                     headerClass="table-header"
+                                     rowClasses="table-row">
+
+                            <h:column>
+                                <f:facet name="header">ID</f:facet>
+                                <h:outputText value="#{livreur.id}" />
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Nom complet</f:facet>
+                                <h:outputText value="#{livreur.utilisateur.nom} #{livreur.utilisateur.prenom}" />
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Email</f:facet>
+                                <div class="flex items-center">
+                                    <i class="ri-mail-line mr-2 text-gray-500"></i>
+                                    <h:outputText value="#{livreur.utilisateur.email}" />
+                                </div>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Disponibilité</f:facet>
+                                <h:outputText value="Disponible" styleClass="status-badge status-delivered"
+                                              rendered="#{livreur.disponibiliter eq 'oui'}" />
+                                <h:outputText value="Non disponible" styleClass="status-badge status-pending"
+                                              rendered="#{livreur.disponibiliter eq 'non'}" />
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Actions</f:facet>
+                                <div class="action-buttons">
+                                    <h:commandButton value="Modifier" styleClass="action-button"
+                                                     action="#{livreurBean.preparerModification(livreur)}">
+                                        <f:ajax execute="@this" render=":editForm"
+                                                onevent="function(data) {
+                                                    if (data.status === 'success') {
+                                                        document.getElementById('edit-modal-overlay').classList.add('show');
+                                                    }
+                                                }" />
+                                    </h:commandButton>
+
+                                    <h:commandButton value="Supprimer"
+                                                     action="#{livreurBean.supprimerLivreur(livreur.id)}"
+                                                     onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce livreur?');"
+                                                     styleClass="action-button delete">
+                                    </h:commandButton>
+                                </div>
+                            </h:column>
+                        </h:dataTable>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION D'AFFECTATION DE COLIS -->
+        <div class="card" style="margin-top: 30px;">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="ri-truck-line mr-2"></i>
+                    Affecter un colis à un livreur
+                </h2>
+                <p style="margin: 0; color: #6b7280; font-size: 14px;">
+                    Sélectionnez un livreur disponible et un colis pour créer une nouvelle affectation
+                </p>
+            </div>
+
+            <div class="card-body">
+                <h:form id="affectationForm">
+                    <div class="affectation-container">
+                        <!-- Sélection du livreur -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="ri-user-line mr-2"></i>
+                                Livreur disponible
+                            </label>
+                            <h:selectOneMenu value="#{livreurColisBean.idLivreurSelectionne}"
+                                             styleClass="form-select"
+                                             required="true">
+                                <f:selectItem itemLabel="-- Choisir un livreur --" itemValue="#{null}" />
+                                <f:selectItems value="#{livreurBean.livreursDisponibles}" var="livreur"
+                                               itemLabel="#{livreur.utilisateur.nom} #{livreur.utilisateur.prenom} (ID: #{livreur.id})"
+                                               itemValue="#{livreur.id}" />
+                            </h:selectOneMenu>
+                        </div>
+
+                        <!-- Sélection du colis -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="ri-package-line mr-2"></i>
+                                Colis à affecter
+                            </label>
+                            <h:selectOneMenu value="#{livreurColisBean.idColisAffectation}"
+                                             styleClass="form-select"
+                                             required="true">
+                                <f:selectItem itemLabel="-- Choisir un colis --" itemValue="#{null}" />
+                                <f:selectItems value="#{livreurColisBean.colisNonAffectes}" var="colis"
+                                               itemLabel="#{colis.numeroSuivi} - #{colis.adresseDestinataire.ville} (#{colis.utilisateur.nom})"
+                                               itemValue="#{colis.id}" />
+                            </h:selectOneMenu>
+                        </div>
+
+                        <!-- Bouton d'affectation -->
+                        <div class="form-group">
+                            <h:commandButton value="Affecter le Colis"
+                                             action="#{livreurColisBean.affecterColisAuLivreur}"
+                                             styleClass="btn btn-success btn-lg">
+                                <f:ajax execute="@form" render=":dataTableForm :messages :affectationForm" />
+                            </h:commandButton>
+                        </div>
+                    </div>
+                </h:form>
+            </div>
+        </div>
+
+        <!-- Modal d'ajout de livreur -->
+        <div class="modal-overlay" id="add-modal-overlay">
+            <div class="modal-container" style="background-color: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                <div class="modal-header" style="background-color: white; padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                    <h3 class="modal-title" style="margin: 0; color: #1f2937; font-size: 1.25rem; font-weight: 600;">Ajouter un nouveau livreur</h3>
+                    <button type="button" class="modal-close" onclick="closeAddModal()"
+                            style="background: none; border: none; font-size: 20px; cursor: pointer; color: #6b7280; padding: 4px; border-radius: 4px;">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="background-color: white; padding: 20px;">
+                    <h:form id="addForm">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Nom</label>
+                                <h:inputText value="#{livreurBean.nouveauLivreur.utilisateur.nom}"
+                                             style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background-color: white; font-size: 14px;"
+                                             required="true" />
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Prénom</label>
+                                <h:inputText value="#{livreurBean.nouveauLivreur.utilisateur.prenom}"
+                                             style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background-color: white; font-size: 14px;"
+                                             required="true" />
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Email</label>
+                                <h:inputText value="#{livreurBean.nouveauLivreur.utilisateur.email}"
+                                             style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background-color: white; font-size: 14px;"
+                                             required="true" />
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Disponibilité</label>
+                                <h:selectOneMenu value="#{livreurBean.nouveauLivreur.disponibiliter}"
+                                                 style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background-color: white; font-size: 14px;"
+                                                 required="true">
+                                    <f:selectItem itemLabel="Disponible" itemValue="oui" />
+                                    <f:selectItem itemLabel="Non disponible" itemValue="non" />
+                                </h:selectOneMenu>
+                            </div>
+                        </div>
+                        <div style="background-color: white; padding: 20px; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+                            <button type="button" style="padding: 8px 16px; border: 1px solid #d1d5db; background-color: white; color: #374151; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                                    onclick="closeAddModal()">Annuler</button>
+                            <h:commandButton value="Ajouter" action="#{livreurBean.ajouterLivreur}"
+                                             style="padding: 8px 16px; background-color: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                                             onclick="closeAddModal();">
+                                <f:ajax execute="@form" render=":dataTableForm :messages :affectationForm" />
+                            </h:commandButton>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de modification de livreur -->
+        <div class="modal-overlay" id="edit-modal-overlay">
+            <div class="modal-container" style="background-color: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                <div class="modal-header" style="background-color: white; padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+                    <h3 class="modal-title" style="margin: 0; color: #1f2937; font-size: 1.25rem; font-weight: 600;">Modifier le livreur</h3>
+                    <button type="button" class="modal-close" onclick="closeEditModal()"
+                            style="background: none; border: none; font-size: 20px; cursor: pointer; color: #6b7280; padding: 4px; border-radius: 4px;">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+                <div class="modal-body" style="background-color: white; padding: 20px;">
+                    <h:form id="editForm">
+                        <h:inputHidden id="idLivreur" value="#{livreurBean.livreurModifie.id}" />
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Nom</label>
+                                <h:inputText id="nomLivreur" value="#{livreurBean.livreurModifie.utilisateur.nom}"
+                                             style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background-color: white; font-size: 14px;"
+                                             required="true" />
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Prénom</label>
+                                <h:inputText id="prenomLivreur" value="#{livreurBean.livreurModifie.utilisateur.prenom}"
+                                             style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background-color: white; font-size: 14px;"
+                                             required="true" />
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Email</label>
+                                <h:inputText id="emailLivreur" value="#{livreurBean.livreurModifie.utilisateur.email}"
+                                             style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background-color: white; font-size: 14px;"
+                                             required="true" />
+                            </div>
+                            <div style="margin-bottom: 16px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Disponibilité</label>
+                                <h:selectOneMenu id="disponibiliteLivreur" value="#{livreurBean.livreurModifie.disponibiliter}"
+                                                 style="width: 100%; padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; background-color: white; font-size: 14px;"
+                                                 required="true">
+                                    <f:selectItem itemLabel="Disponible" itemValue="oui" />
+                                    <f:selectItem itemLabel="Non disponible" itemValue="non" />
+                                </h:selectOneMenu>
+                            </div>
+                        </div>
+                        <div style="background-color: white; padding: 20px; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+                            <button type="button" style="padding: 8px 16px; border: 1px solid #d1d5db; background-color: white; color: #374151; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                                    onclick="closeEditModal()">Annuler</button>
+                            <h:commandButton value="Enregistrer" action="#{livreurBean.modifierLivreur}"
+                                             style="padding: 8px 16px; background-color: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                                             onclick="closeEditModal();">
+                                <f:ajax execute="@form" render=":dataTableForm :messages :affectationForm" />
+                            </h:commandButton>
+                        </div>
+                    </h:form>
+                </div>
+            </div>
+        </div>
+
+        <!-- JavaScript -->
+        <h:outputScript>
+            document.addEventListener('DOMContentLoaded', function() {
+            const addModalBtn = document.getElementById('open-add-modal-btn');
+            if (addModalBtn) {
+            addModalBtn.addEventListener('click', function() {
+            document.getElementById('add-modal-overlay').classList.add('show');
+            });
+            }
+            });
+
+            function closeAddModal() {
+            document.getElementById('add-modal-overlay').classList.remove('show');
+            }
+
+            function closeEditModal() {
+            document.getElementById('edit-modal-overlay').classList.remove('show');
+            }
+
+            // Fermer les modals en cliquant sur l'overlay
+            document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal-overlay')) {
+            e.target.classList.remove('show');
+            }
+            });
+
+            // Fermer avec la touche Échap
+            document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.show').forEach(modal => {
+            modal.classList.remove('show');
+            });
+            }
+            });
+        </h:outputScript>
+
+        <!-- CSS -->
+        <style>
+            .modal-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .modal-overlay.show {
+                display: flex;
+            }
+
+            .status-badge {
+                display: inline-flex;
+                align-items: center;
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 500;
+            }
+
+            .status-delivered {
+                background-color: #d1fae5;
+                color: #065f46;
+            }
+
+            .status-pending {
+                background-color: #fef3c7;
+                color: #92400e;
+            }
+
+            /* Styles pour les statistiques EN HAUT */
+            .stats-container-top {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+                padding: 20px 0;
+            }
+
+            .stat-card {
+                display: flex;
+                align-items: center;
+                padding: 24px;
+                background-color: white;
+                border-radius: 12px;
+                border: 1px solid #e5e7eb;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .stat-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .stat-icon {
+                width: 56px;
+                height: 56px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 20px;
+                font-size: 28px;
+            }
+
+            .stat-icon-available {
+                background-color: #d1fae5;
+                color: #065f46;
+            }
+
+            .stat-icon-packages {
+                background-color: #dbeafe;
+                color: #1e40af;
+            }
+
+            .stat-icon-mission {
+                background-color: #fef3c7;
+                color: #92400e;
+            }
+
+            .stat-icon-total {
+                background-color: #f3e8ff;
+                color: #7c3aed;
+            }
+
+            .stat-content {
+                flex: 1;
+            }
+
+            .stat-number {
+                font-size: 32px;
+                font-weight: 800;
+                color: #1f2937;
+                line-height: 1;
+                margin-bottom: 4px;
+            }
+
+            .stat-label {
+                font-size: 16px;
+                color: #6b7280;
+                font-weight: 500;
+            }
+
+            /* Styles pour la section d'affectation */
+            .affectation-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr auto;
+                gap: 20px;
+                align-items: end;
+                margin-bottom: 30px;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .form-label {
+                display: flex;
+                align-items: center;
+                margin-bottom: 8px;
+                font-weight: 500;
+                color: #374151;
+                font-size: 14px;
+            }
+
+            .form-select {
+                width: 100%;
+                padding: 10px 12px;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                background-color: white;
+                font-size: 14px;
+                color: #374151;
+            }
+
+            .form-select:focus {
+                outline: none;
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            }
+
+            .btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 500;
+                display: inline-flex;
+                align-items: center;
+                text-decoration: none;
+            }
+
+            .btn-success {
+                background-color: #10b981;
+                color: white;
+            }
+
+            .btn-success:hover {
+                background-color: #059669;
+            }
+
+            .btn-lg {
+                padding: 12px 24px;
+                font-size: 16px;
+            }
+
+            @media (max-width: 768px) {
+                .stats-container-top {
+                    grid-template-columns: 1fr;
+                    gap: 16px;
+                }
+
+                .affectation-container {
+                    grid-template-columns: 1fr;
+                    gap: 16px;
+                }
+
+                .stat-card {
+                    padding: 20px;
+                }
+
+                .stat-icon {
+                    width: 48px;
+                    height: 48px;
+                    font-size: 24px;
+                    margin-right: 16px;
+                }
+
+                .stat-number {
+                    font-size: 28px;
+                }
+            }
+        </style>
+    </ui:define>
+
+</ui:composition>
+</html>

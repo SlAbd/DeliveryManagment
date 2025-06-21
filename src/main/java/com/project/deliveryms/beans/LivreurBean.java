@@ -13,6 +13,7 @@ import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Named
 @ViewScoped
@@ -33,10 +34,10 @@ public class LivreurBean implements Serializable {
     public void init() {
         LOG.info("Initialisation du LivreurBean");
         nouveauLivreur = new Livreur();
-        nouveauLivreur.setUser(new Utilisateur());
+        nouveauLivreur.setUtilisateur(new Utilisateur());
 
         livreurModifie = new Livreur();
-        livreurModifie.setUser(new Utilisateur());
+        livreurModifie.setUtilisateur(new Utilisateur());
 
         rafraichirListeLivreurs();
     }
@@ -56,7 +57,7 @@ public class LivreurBean implements Serializable {
     public Livreur getNouveauLivreur() {
         if (nouveauLivreur == null) {
             nouveauLivreur = new Livreur();
-            nouveauLivreur.setUser(new Utilisateur());
+            nouveauLivreur.setUtilisateur(new Utilisateur());
         }
         return nouveauLivreur;
     }
@@ -75,21 +76,21 @@ public class LivreurBean implements Serializable {
 
     public String ajouterLivreur() {
         try {
-            if (nouveauLivreur != null && nouveauLivreur.getUser() != null) {
-                LOG.info("Tentative d'ajout d'un livreur: " + nouveauLivreur.getUser().getNom() + " " +
-                        nouveauLivreur.getUser().getPrenom());
+            if (nouveauLivreur != null && nouveauLivreur.getUtilisateur() != null) {
+                LOG.info("Tentative d'ajout d'un livreur: " + nouveauLivreur.getUtilisateur().getNom() + " " +
+                        nouveauLivreur.getUtilisateur().getPrenom());
 
                 livreurService.createLivreur(
-                        nouveauLivreur.getUser().getEmail(),
-                        nouveauLivreur.getUser().getNom(),
-                        nouveauLivreur.getUser().getPrenom(),
+                        nouveauLivreur.getUtilisateur().getEmail(),
+                        nouveauLivreur.getUtilisateur().getNom(),
+                        nouveauLivreur.getUtilisateur().getPrenom(),
                         nouveauLivreur.getLatitude(),
                         nouveauLivreur.getLongitude(),
                         nouveauLivreur.getDisponibiliter()
                 );
 
                 nouveauLivreur = new Livreur();
-                nouveauLivreur.setUser(new Utilisateur());
+                nouveauLivreur.setUtilisateur(new Utilisateur());
 
                 rafraichirListeLivreurs();
                 addMessage("Livreur ajouté avec succès.");
@@ -156,22 +157,22 @@ public class LivreurBean implements Serializable {
 
             // Copier les informations utilisateur
             Utilisateur userClone = new Utilisateur();
-            if (livreurFromDB.getUser() != null) {
-                userClone.setId(livreurFromDB.getUser().getId());
-                userClone.setEmail(livreurFromDB.getUser().getEmail());
-                userClone.setNom(livreurFromDB.getUser().getNom());
-                userClone.setPrenom(livreurFromDB.getUser().getPrenom());
-                userClone.setRole(livreurFromDB.getUser().getRole());
+            if (livreurFromDB.getUtilisateur() != null) {
+                userClone.setId(livreurFromDB.getUtilisateur().getId());
+                userClone.setEmail(livreurFromDB.getUtilisateur().getEmail());
+                userClone.setNom(livreurFromDB.getUtilisateur().getNom());
+                userClone.setPrenom(livreurFromDB.getUtilisateur().getPrenom());
+                userClone.setRole(livreurFromDB.getUtilisateur().getRole());
             }
 
-            livreurModifie.setUser(userClone);
+            livreurModifie.setUtilisateur(userClone);
 
             // Logs pour vérification
             LOG.info("--- Préparation Modification Livreur ---");
             LOG.info("ID: " + livreurModifie.getId());
-            LOG.info("Nom: " + livreurModifie.getUser().getNom());
-            LOG.info("Prénom: " + livreurModifie.getUser().getPrenom());
-            LOG.info("Email: " + livreurModifie.getUser().getEmail());
+            LOG.info("Nom: " + livreurModifie.getUtilisateur().getNom());
+            LOG.info("Prénom: " + livreurModifie.getUtilisateur().getPrenom());
+            LOG.info("Email: " + livreurModifie.getUtilisateur().getEmail());
             LOG.info("Disponibilité: " + livreurModifie.getDisponibiliter());
             LOG.info("-----------------------------------");
 
@@ -196,9 +197,9 @@ public class LivreurBean implements Serializable {
 
             LOG.info("--- Modification Livreur ---");
             LOG.info("ID: " + livreurModifie.getId());
-            LOG.info("Nom: " + livreurModifie.getUser().getNom());
-            LOG.info("Prénom: " + livreurModifie.getUser().getPrenom());
-            LOG.info("Email: " + livreurModifie.getUser().getEmail());
+            LOG.info("Nom: " + livreurModifie.getUtilisateur().getNom());
+            LOG.info("Prénom: " + livreurModifie.getUtilisateur().getPrenom());
+            LOG.info("Email: " + livreurModifie.getUtilisateur().getEmail());
             LOG.info("Disponibilité: " + livreurModifie.getDisponibiliter());
             LOG.info("----------------------------");
 
@@ -214,5 +215,30 @@ public class LivreurBean implements Serializable {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public List<Livreur> getLivreursDisponibles() {
+        return livreurs.stream()
+                .filter(l -> "oui".equals(l.getDisponibiliter()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Livreur> getLivreursEnMission() {
+        return livreurs.stream()
+                .filter(l -> "non".equalsIgnoreCase(l.getDisponibiliter()))
+                .collect(Collectors.toList());
+    }
+
+
+    public int getNombreLivreursDisponibles() {
+        return (int) livreurs.stream()
+                .filter(l -> "oui".equals(l.getDisponibiliter()))
+                .count();
+    }
+
+    public int getNombreLivreursEnMission() {
+        return (int) livreurs.stream()
+                .filter(l -> "non".equals(l.getDisponibiliter()))
+                .count();
     }
 }

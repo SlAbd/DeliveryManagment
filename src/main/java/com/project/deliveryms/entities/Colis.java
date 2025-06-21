@@ -31,10 +31,36 @@ public class Colis {
     @Enumerated(EnumType.STRING)
     private StatusColis status;
 
+    private boolean deleted;
+
     @ManyToOne
     private Livreur livreur;
 
+    @OneToOne(mappedBy = "colis", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private BordereauExpedition bordereauExpedition;
+
+    public BordereauExpedition getBordereauExpedition() {
+        return bordereauExpedition;
+    }
+
+    public void setBordereauExpedition(BordereauExpedition bordereauExpedition) {
+        this.bordereauExpedition = bordereauExpedition;
+    }
+
     // Getters et setters
+
+
+    public Utilisateur getUtilisateur() {
+        return utilisateur;
+    }
+
+    public boolean getDeleted() {
+        return deleted;
+    }
+
+
+
+
 
     public Long getId() {
         return id;

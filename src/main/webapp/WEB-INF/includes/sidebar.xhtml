@@ -18,7 +18,7 @@
             <div class="sidebar-group-label">Dashboard</div>
             <ul class="sidebar-menu">
                 <li class="sidebar-menu-item">
-                    <h:link outcome="admin-dashboard" styleClass="sidebar-menu-button">
+                    <h:link outcome="dashboard_" styleClass="sidebar-menu-button">
                         <i class="ri-dashboard-line"></i>
                         <span class="sidebar-menu-button-text">Tableau de bord</span>
                     </h:link>
@@ -60,19 +60,19 @@
             <div class="sidebar-group-label">Gestion des livreurs</div>
             <ul class="sidebar-menu">
                 <li class="sidebar-menu-item">
-                    <h:link outcome="admin-livreurs" styleClass="sidebar-menu-button #{view.viewId == '/admin-livreurs.xhtml' ? 'active' : ''}">
+                    <h:link outcome="livreurs" styleClass="sidebar-menu-button #{view.viewId == '/admin-livreurs.xhtml' ? 'active' : ''}">
                         <i class="ri-user-star-line"></i>
                         <span class="sidebar-menu-button-text">Tous les livreurs</span>
                     </h:link>
                 </li>
                 <li class="sidebar-menu-item">
-                    <h:link outcome="admin-livreurs-disponibles" styleClass="sidebar-menu-button #{view.viewId == '/admin-livreurs-disponibles.xhtml' ? 'active' : ''}">
+                    <h:link outcome="livreurs-disponible" styleClass="sidebar-menu-button #{view.viewId == '/admin-livreurs-disponibles.xhtml' ? 'active' : ''}">
                         <i class="ri-user-follow-line"></i>
                         <span class="sidebar-menu-button-text">Disponibles</span>
                     </h:link>
                 </li>
                 <li class="sidebar-menu-item">
-                    <h:link outcome="admin-livreurs-en-mission" styleClass="sidebar-menu-button #{view.viewId == '/admin-livreurs-en-mission.xhtml' ? 'active' : ''}">
+                    <h:link outcome="livreurs-en-mission" styleClass="sidebar-menu-button #{view.viewId == '/admin-livreurs-en-mission.xhtml' ? 'active' : ''}">
                         <i class="ri-user-location-line"></i>
                         <span class="sidebar-menu-button-text">En mission</span>
                     </h:link>
@@ -84,12 +84,12 @@
             <div class="sidebar-group-label">Administration</div>
             <ul class="sidebar-menu">
                 <li class="sidebar-menu-item">
-                    <h:link outcome="admin-clients" styleClass="sidebar-menu-button #{view.viewId == '/admin-clients.xhtml' ? 'active' : ''}">
+                    <h:link outcome="clients" styleClass="sidebar-menu-button #{view.viewId == '/admin-clients.xhtml' ? 'active' : ''}">
                         <i class="ri-user-line"></i>
                         <span class="sidebar-menu-button-text">Clients</span>
                     </h:link>
                 </li>
-                <li class="sidebar-menu-item">
+              <!--  <li class="sidebar-menu-item">
                     <h:link outcome="admin-rapports" styleClass="sidebar-menu-button #{view.viewId == '/admin-rapports.xhtml' ? 'active' : ''}">
                         <i class="ri-file-chart-line"></i>
                         <span class="sidebar-menu-button-text">Rapports</span>
@@ -100,7 +100,7 @@
                         <i class="ri-settings-line"></i>
                         <span class="sidebar-menu-button-text">Paramètres</span>
                     </h:link>
-                </li>
+                </li> -->
             </ul>
         </div>
     </div>
