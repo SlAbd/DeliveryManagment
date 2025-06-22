@@ -4,6 +4,7 @@ import com.project.deliveryms.enums.StatusColis;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 public class Colis {
@@ -127,5 +128,10 @@ public class Colis {
         this.utilisateur = utilisateur;
     }
     public void setDeleted(boolean b) {
+    }
+    public String getDateEnvoiFormatted() {
+        if (dateEnvoi == null) return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        return dateEnvoi.format(formatter);
     }
 }

@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 @Stateless
 public class LivreureRepository {
 
+
+
     @PersistenceContext(unitName = "default")
     private EntityManager entityManager;
 
@@ -107,4 +109,13 @@ public class LivreureRepository {
         );
         return query.getResultList();
     }
+
+    public Livreur findLivreurByEmail(String email) {
+        TypedQuery<Livreur> query = entityManager.createQuery(
+                "SELECT l FROM Livreur l WHERE l.user.email = :email", Livreur.class);
+        query.setParameter("email", email);
+        return query.getResultStream().findFirst().orElse(null);
+    }
+
+
 }
