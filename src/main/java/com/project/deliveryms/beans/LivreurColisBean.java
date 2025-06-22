@@ -83,7 +83,7 @@ public class LivreurColisBean implements Serializable {
 
     public void loadColisDetail(ComponentSystemEvent event) {
         if (colisDetail == null && idColis != null) {
-            colisDetail = colisService.getColisById(idColis);
+            colisDetail = colisService.findById(idColis);
         }
     }
 
@@ -133,7 +133,7 @@ public class LivreurColisBean implements Serializable {
     }
 
     public String editerColis(Long idColis) {
-        this.colisDetail = colisService.getColisById(idColis);
+        this.colisDetail = colisService.findById(idColis);
         return "editColis.xhtml?faces-redirect=true";
     }
 
@@ -194,7 +194,21 @@ public class LivreurColisBean implements Serializable {
         }
         return liste;
     }
+    public String formatDateLivraison(LocalDateTime date) {
+        if (date == null) {
+            return "";
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        return date.format(formatter);
+    }
 
+    public String formatDateEnvoi(LocalDateTime date) {
+        if (date == null) {
+            return "";
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        return date.format(formatter);
+    }
     public Livreur getLivreurConnecte() { return livreur; }
     public Livreur getLivreurSelectionne() { return livreurSelectionne; }
     public void setLivreurSelectionne(Livreur livreurSelectionne) { this.livreurSelectionne = livreurSelectionne; }

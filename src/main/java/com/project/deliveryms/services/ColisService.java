@@ -1,9 +1,6 @@
 package com.project.deliveryms.services;
 
-import com.project.deliveryms.entities.Adresse;
-import com.project.deliveryms.entities.Colis;
-import com.project.deliveryms.entities.Livreur;
-import com.project.deliveryms.entities.Utilisateur;
+import com.project.deliveryms.entities.*;
 import com.project.deliveryms.enums.StatusColis;
 import com.project.deliveryms.repositories.ColisRepository;
 import com.project.deliveryms.repositories.LivreureRepository;
@@ -233,5 +230,18 @@ public class ColisService {
                 .setParameter("livreurId", livreurId)
                 .setMaxResults(limit)
                 .getResultList();
+    }
+    public List<Colis> getColisByLivreurEtStatus(Livreur livreur, StatusColis status) {
+        return em.createQuery("SELECT c FROM Colis c WHERE c.livreur = :livreur AND c.status = :status", Colis.class)
+                .setParameter("livreur", livreur)
+                .setParameter("status", status)
+                .getResultList();
+    }
+    public BordereauExpedition getBordereauByColisId(Long colisId) {
+        Colis colis = em.find(Colis.class, colisId);
+        if (colis != null) {
+            return colis.getBordereauExpedition();
+        }
+        return null;
     }
 }

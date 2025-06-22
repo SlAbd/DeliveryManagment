@@ -4,7 +4,6 @@ import com.project.deliveryms.entities.Livreur;
 import com.project.deliveryms.entities.Utilisateur;
 import com.project.deliveryms.enums.Role;
 import com.project.deliveryms.repositories.LivreureRepository;
-import com.project.deliveryms.repositories.UserRepository;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.mail.MessagingException;
@@ -26,9 +25,7 @@ public class LivreurService implements Serializable {
 
     @PersistenceContext(unitName = "default")
     private EntityManager entityManager;
-
-    @Inject
-    private UserRepository userRepository;
+    
 
     @Inject
     private LivreureRepository livreurRepository;
@@ -68,7 +65,7 @@ public class LivreurService implements Serializable {
             livreur.setLatitude(latitude);
             livreur.setLongitude(longitude);
             livreur.setDisponibiliter(disponibilite);
-            livreur.setUser(user);
+            livreur.setUtilisateur(user);
 
             entityManager.persist(livreur);
 
@@ -100,7 +97,7 @@ public class LivreurService implements Serializable {
     public void deleteLivreur(Long id) {
         Livreur livreur = entityManager.find(Livreur.class, id);
         if (livreur != null) {
-            Utilisateur user = livreur.getUser();
+            Utilisateur user = livreur.getUtilisateur();
             entityManager.remove(livreur);
 
             if (user != null) {
@@ -134,9 +131,9 @@ public class LivreurService implements Serializable {
 
             Livreur livreur = entityManager.find(Livreur.class, id);
 
-            if (livreur != null && livreur.getUser() != null) {
-                livreur.getUser().getNom();
-                livreur.getUser().getEmail();
+            if (livreur != null && livreur.getUtilisateur() != null) {
+                livreur.getUtilisateur().getNom();
+                livreur.getUtilisateur().getEmail();
             }
             return livreur;
         } catch (Exception e) {
