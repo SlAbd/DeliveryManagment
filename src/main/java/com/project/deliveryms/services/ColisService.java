@@ -107,7 +107,7 @@ public class ColisService {
             throw new IllegalArgumentException("Colis ou utilisateur non trouvé");
 
         colis.setUtilisateur(utilisateur);
-        colisRepository.update(colis);
+        colisRepository.save(colis);
         return colis;
     }
 

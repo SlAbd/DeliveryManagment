@@ -60,9 +60,6 @@ public class Colis {
     }
 
 
-
-
-
     public Long getId() {
         return id;
     }
