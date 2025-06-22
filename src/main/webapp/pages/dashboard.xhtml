@@ -160,19 +160,6 @@
                                         </span>
                                     </div>
                                 </h:column>
-                                <h:column>
-                                    <f:facet name="header">
-                                        <div class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions
-                                        </div>
-                                    </f:facet>
-                                    <div class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <h:link outcome="details-commande" styleClass="inline-flex items-center px-3 py-1.5 border border-primary-300 text-sm font-medium rounded-md text-primary-700 bg-white hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                                            <f:param name="id" value="#{commande.id}" />
-                                            <i class="ri-eye-line mr-1"></i> Détails
-                                        </h:link>
-                                    </div>
-                                </h:column>
                             </h:dataTable>
 
                             <h:panelGroup rendered="#{empty dashboardBean.dernieresCommandes}">

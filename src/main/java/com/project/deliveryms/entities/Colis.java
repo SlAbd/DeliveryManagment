@@ -124,8 +124,8 @@ public class Colis {
 }
 
     public void setUtilisateur(Utilisateur utilisateur) {
+        this.utilisateur = utilisateur;
     }
-
     public void setDeleted(boolean b) {
     }
 }

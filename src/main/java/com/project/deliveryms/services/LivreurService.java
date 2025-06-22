@@ -6,7 +6,6 @@ import com.project.deliveryms.entities.Livreur;
 import com.project.deliveryms.entities.Utilisateur;
 import com.project.deliveryms.enums.Role;
 import com.project.deliveryms.repositories.LivreureRepository;
-import com.project.deliveryms.repositories.UserRepository;
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -24,9 +23,6 @@ public class LivreurService {
 
     @PersistenceContext(unitName = "default")
     private EntityManager entityManager;
-
-    @Inject
-    private UserRepository userRepository;
 
     @Inject
     private LivreureRepository livreurRepository;
