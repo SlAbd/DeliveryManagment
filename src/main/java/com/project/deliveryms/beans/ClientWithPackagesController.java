@@ -141,13 +141,9 @@ public class ClientWithPackagesController implements Serializable {
         return top5Clients;
     }
     public Date getConvertedCreationDate(Utilisateur client) {
-        LocalDateTime localDateTime = client.getCreationDate();
-        if (localDateTime == null) {
-            return null;
-        }
+        LocalDateTime localDateTime = client.getCreationDate(); // ou autre type
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
-
 
 
 }
